@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,12 +12,14 @@ namespace POCHAOSLYPSE
         public float rotation = 0;
         public Vector2 origin = new();
         public Color color;
+        public SpriteEffects facingLeft;
         public Sprite(Texture2D texture, Rectangle srcRec, Rectangle destRec)
         {
             this.texture = texture;
             this.sourceRectangle = srcRec;
             this.destinationRectangle = destRec;
             color = Color.White;
+            facingLeft = SpriteEffects.None;
         }
         public Sprite(Texture2D texture, Rectangle sourceRectangle, Rectangle destRect, float rotation, Vector2 origin, Color color)
         {
@@ -31,7 +34,8 @@ namespace POCHAOSLYPSE
         { }
         public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color, rotation, origin, SpriteEffects.None, 0);
+            Console.WriteLine("raaaa");
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color, rotation, origin, facingLeft, 0);
         }
     }
 }
