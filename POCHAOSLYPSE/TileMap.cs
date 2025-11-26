@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 namespace POCHAOSLYPSE;
 public class TileMap
 {
-    public Dictionary<Point, Block> blocks {get;} //TODO: add Block claas
+    public Dictionary<Point, Block> blocks {get;} = new(); //TODO: add Block claas
     public bool isCollidable {get;}
     public bool canDraw {get;}
     private int scaleTexture = 16;
@@ -19,8 +19,9 @@ public class TileMap
         this.isCollidable = isCollidable;
         this.canDraw = canDraw;
     }
-    public void GetBlocks(string filePath)
+    public void GetBlocks(string filePathj)
     {
+        string filePath = ContentLoader.GetExecutingDir(filePathj);
         numberOfTilesPerRow = File.ReadAllLines(filePath).Length; // bastante lento e ineficiente, se lee el archivo dos veces
         StreamReader reader = new(filePath);
         string line;
@@ -50,10 +51,11 @@ public class TileMap
             (block % numberOfTilesPerRow) * tileTexture,
             (block / numberOfTilesPerRow) * tileTexture
         );
+        Console.WriteLine($"point: {point} / {numberOfTilesPerRow}");
 
         return new(
             point,
-            new(tileTexture)
+            new(tileTexture, tileTexture)
         );
     }
 

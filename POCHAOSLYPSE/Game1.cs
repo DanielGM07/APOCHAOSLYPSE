@@ -11,6 +11,8 @@ public class Game1 : Game
     private SceneManager sceneManager;
     public Item item;
     public Item item2;
+    private TileMap tileMap = new(false, false);
+    private Texture2D t_world;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -29,8 +31,8 @@ public class Game1 : Game
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
         sceneManager.getScene().LoadContent();
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
         Texture2D t = ContentLoader.Instance.LoadImage("Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Keys/scenes_key_idle.png");
         item = new Item(t, new(0,0,16,16), new(
             _graphics.PreferredBackBufferWidth/2 - 50,
@@ -45,6 +47,8 @@ public class Game1 : Game
             100,
             100)
         );
+        tileMap.GetBlocks("tiled/test1.csv");
+        t_world = ContentLoader.Instance.LoadImage("Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Tilesets/library/tileset_library.png");
     }
 
     protected override void Update(GameTime gameTime)
@@ -70,6 +74,7 @@ public class Game1 : Game
             spriteBatch: _spriteBatch
         );
         item2.Draw(_spriteBatch, gameTime);
+        tileMap.Draw(t_world, gameTime, _spriteBatch);
 
         _spriteBatch.End();
         base.Draw(gameTime);

@@ -62,7 +62,7 @@ namespace POCHAOSLYPSE
         }
 
 #region Utils
-        private static string GetExecutingDir(string v)
+        public static string GetExecutingDir(string v)
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var dirInfo = new DirectoryInfo(baseDirectory);
