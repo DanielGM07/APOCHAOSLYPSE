@@ -32,10 +32,38 @@ namespace POCHAOSLYPSE
         }
         public virtual void Update(GameTime gameTime)
         { }
-        public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
-        {
-            Console.WriteLine("raaaa");
-            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color, rotation, origin, facingLeft, 0);
-        }
+public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+{
+    // Centro del rect destino en mundo
+    Vector2 position = destinationRectangle.Center.ToVector2();
+
+    // Escala para adaptar source -> destino
+    Vector2 scale = new Vector2(
+        destinationRectangle.Width  / (float)sourceRectangle.Width,
+        destinationRectangle.Height / (float)sourceRectangle.Height
+    );
+
+    // Si no te dieron origin, usá el centro del source
+    if (origin == Vector2.Zero)
+    {
+        origin = new Vector2(
+            sourceRectangle.Width  / 2f,
+            sourceRectangle.Height / 2f
+        );
+    }
+
+    spriteBatch.Draw(
+        texture,
+        position,            // centro en mundo
+        sourceRectangle,
+        color,
+        rotation,            // en radianes
+        origin,              // centro del source
+        scale,
+        facingLeft,
+        0f
+    );
+}
+
     }
 }

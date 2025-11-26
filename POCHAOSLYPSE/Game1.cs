@@ -11,6 +11,7 @@ public class Game1 : Game
     private SceneManager sceneManager;
     public Item item;
     public Item item2;
+    public Item item3;
     private TileMap tileMap = new(false, false);
     private Texture2D t_world;
     public Game1()
@@ -33,6 +34,23 @@ public class Game1 : Game
     {
         sceneManager.getScene().LoadContent();
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        
+        Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
+
+        // RECTÁNGULO DE PRUEBA: 100x100 centrado en la pantalla
+        item3 = new Item(
+            pixel,                      // textura 1x1
+            new Rectangle(0, 0, 1, 1),  // source 1x1
+            new Rectangle(
+                _graphics.PreferredBackBufferWidth / 2 - 50,
+                _graphics.PreferredBackBufferHeight / 2 - 50,
+                100,
+                100
+            )
+        );
+        item3.color = Color.Red; // para verlo bien
+
         Texture2D t = ContentLoader.Instance.LoadImage("Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Keys/scenes_key_idle.png");
         item = new Item(t, new(0,0,16,16), new(
             _graphics.PreferredBackBufferWidth/2 - 50,
@@ -58,6 +76,7 @@ public class Game1 : Game
 
         sceneManager.getScene().Update(gameTime);
         item.Update(gameTime);
+        item3.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -68,6 +87,12 @@ public class Game1 : Game
         _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: Camera.Instance.Matrix);
         
         sceneManager.getScene().Draw(gameTime, _spriteBatch);
+
+
+        item3.Draw(
+            gameTime: gameTime,
+            spriteBatch: _spriteBatch
+        );
 
         item.Draw(
             gameTime: gameTime,

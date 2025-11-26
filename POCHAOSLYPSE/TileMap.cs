@@ -13,7 +13,7 @@ public class TileMap
     public bool canDraw {get;}
     private int scaleTexture = 16;
     private int tileTexture = 16;
-    private int numberOfTilesPerRow = 0;
+    private int numberOfTilesPerRow = 16;
     public TileMap(bool isCollidable, bool canDraw)
     {
         this.isCollidable = isCollidable;
@@ -22,7 +22,6 @@ public class TileMap
     public void GetBlocks(string filePathj)
     {
         string filePath = ContentLoader.GetExecutingDir(filePathj);
-        numberOfTilesPerRow = File.ReadAllLines(filePath).Length; // bastante lento e ineficiente, se lee el archivo dos veces
         StreamReader reader = new(filePath);
         string line;
         int y = 0;
