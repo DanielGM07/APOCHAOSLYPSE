@@ -1,0 +1,35 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "patron1.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "/home/clumpl/Documentos/Proyectazo_Danielazo/POCHAOSLYPSE/tiled",
+    "last.imagePath": "/home/clumpl/Documentos/Proyectazo_Danielazo/POCHAOSLYPSE/Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Tilesets/library",
+    "map.height": 30,
+    "map.lastUsedExportFilter": "Archivos CSV (*.csv)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 60,
+    "openFiles": [
+    ],
+    "project": "proyectazo.tiled-project",
+    "recentFiles": [
+        "patron1.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
