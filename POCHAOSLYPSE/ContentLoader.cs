@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Content;
 
 namespace POCHAOSLYPSE
 {
@@ -22,32 +23,33 @@ namespace POCHAOSLYPSE
             }
         }
         private static readonly object sync = new();
-        public static void Initialize(GraphicsDeviceManager device, string contentPath)
+        public static void Initialize(GraphicsDeviceManager device, ContentManager content, string contentPath)
         {
             if (instance != null) return;
             lock(sync)
             {
                 if (instance == null)
-                    instance = new ContentLoader(device, contentPath);
+                    instance = new ContentLoader(device, content, contentPath);
             }
         }
 #endregion
 
-        private GraphicsDeviceManager graphics;
+        public GraphicsDeviceManager graphics {get;}
 
-        private Dictionary<string, Texture2D> texturesByNameAndFolder = new(); // use: player = texturesByNameAndFolder["Content/Images/player"]
-        private Dictionary<string, Song> songsByNameAndFolder = new(); // use: mainMenu = texturesByNameAndFolder["Content/Songs/MainMenu"]
-        private Dictionary<string, SoundEffect> soundEffectsByNameAndFolder = new(); // use: playerSFX = texturesByNameAndFolder["Content/SFX/hurt"]
+        public Dictionary<string, Texture2D> texturesByNameAndFolder = new(); // use: player = texturesByNameAndFolder["Content/Images/player"]
+        public Dictionary<string, Song> songsByNameAndFolder = new(); // use: mainMenu = texturesByNameAndFolder["Content/Songs/MainMenu"]
+        public Dictionary<string, SoundEffect> soundEffectsByNameAndFolder = new(); // use: playerSFX = texturesByNameAndFolder["Content/SFX/hurt"]
+        public SpriteFont font;
 
-        private ContentLoader(GraphicsDeviceManager device, string contentPath)
+        private ContentLoader(GraphicsDeviceManager device, ContentManager content, string contentPath)
         {
             this.graphics = device;
+            font = content.Load<SpriteFont>("font");
             loadEverything(contentPath);
-
         }
         private void loadEverything(string contentPath)
         {
-
+          //TODO: make it load what you need, idk
         }
 
         public Texture2D LoadImage(string path)

@@ -15,13 +15,14 @@ public class Game1 : Game
         _graphics = new GraphicsDeviceManager(this);
         Camera.Initialize(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         sceneManager = new();
-        // Content.RootDirectory = "Content";
+        Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
 
     protected override void Initialize()
     {
-        ContentLoader.Initialize(_graphics, "Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5"); // esta cosa va a tardar milenios
+        ContentLoader.Initialize(_graphics, Content, "Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5"); // esta cosa va a tardar milenios
+        sceneManager.AddScene(new MenuScene());
         base.Initialize();
     }
 
