@@ -8,7 +8,9 @@ namespace POCHAOSLYPSE
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private SceneManager sceneManager;
+        public static SceneManager SceneManager;
+        public static bool ExitGameRequested = false;
+        private KeyboardState _prevKeyboard;
 
         public Game1()
         {
@@ -16,14 +18,14 @@ namespace POCHAOSLYPSE
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // Ventana a tamaño de monitor, en modo ventana
+            // Ventana del tamaño del monitor, en modo ventana
             var displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
             _graphics.PreferredBackBufferWidth  = displayMode.Width;
             _graphics.PreferredBackBufferHeight = displayMode.Height;
             _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
-            // Inicializar cámara con esas dimensiones
+            // Inicializar cámara
             Camera.Initialize(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         }
 
@@ -34,10 +36,11 @@ namespace POCHAOSLYPSE
 
             Camera.Instance.CenterOrigin();
 
-            sceneManager = new SceneManager();
+            // SceneManager global
+            SceneManager = new SceneManager();
 
-            // Por ahora arrancamos directo en gameplay
-            sceneManager.AddScene(new PlayScene());
+            // Arrancamos en el menú principal
+            SceneManager.AddScene(new MenuScene());
 
             base.Initialize();
         }
@@ -46,34 +49,67 @@ namespace POCHAOSLYPSE
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargar contenido de la escena actual
-            sceneManager.getScene().LoadContent();
+            SceneManager.getScene().LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            // Salir con Escape o botón Back
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (ExitGameRequested)
             {
                 Exit();
+                return;
             }
 
-            sceneManager.getScene().Update(gameTime);
+            var kb = Keyboard.GetState();
+            bool escJustPressed = kb.IsKeyDown(Keys.Escape) && !_prevKeyboard.IsKeyDown(Keys.Escape);
+
+            // 🔹 SISTEMA DE PAUSA GLOBAL con edge detection en ESC
+            if (escJustPressed)
+            {
+                var current = SceneManager.getScene();
+
+                if (current is PlayScene)
+                {
+                    SceneManager.AddScene(new PauseScene());
+                    SceneManager.getScene().LoadContent();
+                }
+                else if (current is PauseScene)
+                {
+                    SceneManager.RemoveScene();
+                }
+            }
+
+            SceneManager.getScene().Update(gameTime);
+
+            _prevKeyboard = kb; // guardar estado para el próximo frame
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            var current = SceneManager.getScene();
 
-            _spriteBatch.Begin(
-                samplerState: SamplerState.PointWrap,
-                transformMatrix: Camera.Instance.Matrix
-            );
+            if (current is PlayScene)
+                GraphicsDevice.Clear(new Color(200, 200, 200));  // gris suave
+            else
+                GraphicsDevice.Clear(Color.Black);
 
-            sceneManager.getScene().Draw(gameTime, _spriteBatch);
+            if (current is MenuScene || current is PauseScene)
+            {
+                _spriteBatch.Begin(
+                    samplerState: SamplerState.PointClamp   // sin transformMatrix
+                );
+            }
+            else
+            {
+                _spriteBatch.Begin(
+                    samplerState: SamplerState.PointWrap,
+                    transformMatrix: Camera.Instance.Matrix
+                );
+            }
+
+            current.Draw(gameTime, _spriteBatch);
 
             _spriteBatch.End();
 
