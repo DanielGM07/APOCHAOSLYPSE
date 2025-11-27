@@ -26,8 +26,6 @@ namespace POCHAOSLYPSE
         private Weapon gatlingGun;
         private GrapplingHookWeapon grapplingHook;
         private FlamethrowerWeapon flamethrower;
-        private GrapplingHookWeapon grapplingHook;
-        private FlamethrowerWeapon flamethrower;
 
         private Weapon currentWeapon;
 
@@ -180,7 +178,6 @@ namespace POCHAOSLYPSE
 
             Vector2 mouseWorld = Camera.Instance.ScreenToCamera(mouse.Position.ToVector2());
             Vector2 aimDir = mouseWorld - player.Center;
-            Vector2 aimDir = mouseWorld - player.Center;
             if (aimDir != Vector2.Zero)
                 aimDir.Normalize();
             else
@@ -276,7 +273,6 @@ namespace POCHAOSLYPSE
             if (currentWeapon is Katana k)
                 HandleKatanaMelee(player, k, enemies);
 
-            Camera.Instance.FollowPlayer(gameTime, player);
             Camera.Instance.UpdateZoom(gameTime);
 
             prevMouse = mouse;
@@ -394,14 +390,7 @@ namespace POCHAOSLYPSE
         // ===========================
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(pixel,
-                new Rectangle(
-                    Camera.Instance.ViewPortRectangle.X - 2000,
-                    Camera.Instance.ViewPortRectangle.Y - 2000,
-                    4000,
-                    4000),
-                new Color(200, 200, 200));
-
+          Globals.color = Color.Gray;
             tileMap.Draw(tilesetTexture, gameTime, spriteBatch);
 
             if (grapplingHook.CurrentHook != null)

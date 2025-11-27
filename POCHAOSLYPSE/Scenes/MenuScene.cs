@@ -88,6 +88,8 @@ namespace POCHAOSLYPSE
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        { }
+        public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
         {
             var loader = ContentLoader.Instance;
 
