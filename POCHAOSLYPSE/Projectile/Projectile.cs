@@ -13,16 +13,23 @@ namespace POCHAOSLYPSE
         public Color Color;
         public bool IsAlive => Lifetime > 0f;
 
+        // 🔹 Nuevo: explosivo o no
+        public bool IsExplosive;
+        public float ExplosionRadius;
+
         public Projectile(Vector2 position, Vector2 velocity,
                           float damage, float lifetime,
-                          Color color, float radius)
+                          Color color, float radius,
+                          bool isExplosive = false, float explosionRadius = 0f)
         {
-            Position = position;
-            Velocity = velocity;
-            Damage = damage;
-            Lifetime = lifetime;
-            Color = color;
-            Radius = radius;
+            Position        = position;
+            Velocity        = velocity;
+            Damage          = damage;
+            Lifetime        = lifetime;
+            Color           = color;
+            Radius          = radius;
+            IsExplosive     = isExplosive;
+            ExplosionRadius = explosionRadius;
         }
 
         public void Update(GameTime gameTime)

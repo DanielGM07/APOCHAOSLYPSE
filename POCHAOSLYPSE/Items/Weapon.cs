@@ -7,14 +7,19 @@ namespace POCHAOSLYPSE
     public abstract class Weapon : Item
     {
         protected float fireCooldown;
-        public float FireRate { get; private set; }   // disparos por segundo
-        public float Knockback { get; private set; }  // knockback en píxeles hacia atrás
+
+        public float FireRate   { get; private set; }   // disparos por segundo
+        public float Knockback  { get; private set; }   // fuerza de empuje al owner
+
+        // 🔹 Shake independiente del knockback
+        public float ShakeMagnitude { get; protected set; } = 0f;
+        public float ShakeDuration  { get; protected set; } = 0f;
 
         protected Weapon(Texture2D texture, Rectangle srcRec, Rectangle destRect,
                          float fireRate, float knockback, Color color)
             : base(texture, srcRec, destRect, color)
         {
-            FireRate = fireRate;
+            FireRate  = fireRate;
             Knockback = knockback;
         }
 
@@ -37,8 +42,6 @@ namespace POCHAOSLYPSE
                 fireCooldown = 1f / FireRate;
         }
 
-        // muzzle: punto de salida del arma
-        // dir: dirección normalizada de disparo
         public abstract void Fire(Vector2 muzzle, Vector2 dir,
                                   List<Projectile> projectiles,
                                   Entity owner);

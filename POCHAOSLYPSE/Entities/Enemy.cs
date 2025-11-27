@@ -5,16 +5,21 @@ namespace POCHAOSLYPSE
 {
     public class Enemy : Entity
     {
+        public TileMap TileMap { get; set; }
+
         public Enemy(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color)
             : base(texture, srcRec, destRec, color)
         {
             Health = 100;
-            color = Color.IndianRed;
+            this.color = Color.IndianRed;
         }
 
         public override void Update(GameTime gameTime)
         {
-            // Enemigo estático por ahora
+            // Ejemplo: enemigo quieto por ahora
+            // Podés agregar IA y luego usar TileMap igual que en el Player
+
+            base.Update(gameTime);
         }
     }
 }

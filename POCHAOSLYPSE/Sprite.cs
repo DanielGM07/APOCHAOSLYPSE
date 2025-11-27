@@ -51,15 +51,12 @@ namespace POCHAOSLYPSE
 
         public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            // Centro del rect destino en mundo
-
             // Escala para adaptar source -> destino
             Vector2 scale = new Vector2(
                 destinationRectangle.Width / (float)sourceRectangle.Width,
                 destinationRectangle.Height / (float)sourceRectangle.Height
             );
 
-            // Si no te dieron origin, usá el centro del source
             if (origin == Vector2.Zero)
             {
                 origin = new Vector2(

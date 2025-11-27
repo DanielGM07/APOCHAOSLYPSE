@@ -6,37 +6,127 @@ namespace POCHAOSLYPSE
 {
     public class Player : Entity
     {
-        private int numJumps;
-        public int jumpCounter;
+        // Velocidades en unidades por segundo
+        public float MoveSpeed      = 250f;   // velocidad horizontal
+        public float Gravity        = 2000f;  // aceleración hacia abajo
+        public float JumpSpeed      = -700f;  // velocidad inicial hacia arriba
+        public float MaxFallSpeed   = 1000f;  // límite de caída
 
-        public float MoveSpeed = 250f;
+        // Coyote time
+        private float coyoteTime        = 0.12f;
+        private float coyoteTimeCounter = 0f;
+
+        // Jump buffer
+        private float jumpBufferTime    = 0.12f;
+        private float jumpBufferCounter = 0f;
+
         public Weapon weapon;
+        public TileMap TileMap { get; set; }
 
-        public Player(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color) : base(texture, srcRec, destRec, color)
+        private KeyboardState prevState;
+
+        // Helpers para la cámara
+        public Rectangle BoundingBox => destinationRectangle;
+        public Vector2   Velocity    => velocity;
+        public bool      FacingLeft  => isFacingLeft;
+
+        // 🔹 Knockback horizontal acumulado (para recoil)
+        private float knockbackX = 0f;
+
+        public Player(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color)
+            : base(texture, srcRec, destRec, color)
         {
         }
 
-        public void Strafe()
+        public void Strafe() { }
+
+        // 🔹 Knockback 2D: X acumulada, Y directo a la velocidad
+        public override void ApplyKnockback(Vector2 impulse)
         {
+            knockbackX += impulse.X;   // empuje horizontal sostenido
+            velocity.Y += impulse.Y;   // impulso vertical inmediato
         }
-        KeyboardState lastState;
+
         public override void Update(GameTime gameTime)
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            KeyboardState ks = Keyboard.GetState();
 
-            Vector2 move = Vector2.Zero;
+            // --- INPUT DE SALTO (W, UP, SPACE) ---
+            bool jumpNow =
+                ks.IsKeyDown(Keys.Space) ||
+                ks.IsKeyDown(Keys.W) ||
+                ks.IsKeyDown(Keys.Up);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.W)) move.Y -= 1;
-            if (Keyboard.GetState().IsKeyDown(Keys.S)) move.Y += 1;
-            if (Keyboard.GetState().IsKeyDown(Keys.A)) move.X -= 1;
-            if (Keyboard.GetState().IsKeyDown(Keys.D)) move.X += 1;
+            bool jumpPressedThisFrame =
+                jumpNow &&
+                !(prevState.IsKeyDown(Keys.Space) ||
+                  prevState.IsKeyDown(Keys.W) ||
+                  prevState.IsKeyDown(Keys.Up));
 
-            if (move != Vector2.Zero)
+            // Jump buffer
+            if (jumpPressedThisFrame)
+                jumpBufferCounter = jumpBufferTime;
+            else
+                jumpBufferCounter -= dt;
+
+            // Coyote time
+            if (onGround)
+                coyoteTimeCounter = coyoteTime;
+            else
+                coyoteTimeCounter -= dt;
+
+            // --- MOVIMIENTO HORIZONTAL POR INPUT ---
+            float inputVelX = 0f;
+            if (ks.IsKeyDown(Keys.A) || ks.IsKeyDown(Keys.Left))
+                inputVelX -= MoveSpeed;
+            if (ks.IsKeyDown(Keys.D) || ks.IsKeyDown(Keys.Right))
+                inputVelX += MoveSpeed;
+
+            if (inputVelX < 0) isFacingLeft = true;
+            else if (inputVelX > 0) isFacingLeft = false;
+
+            // 🔹 velocity.X = input + knockback
+            velocity.X = inputVelX + knockbackX;
+
+            // --- GRAVEDAD ---
+            velocity.Y += Gravity * dt;
+            if (velocity.Y > MaxFallSpeed)
+                velocity.Y = MaxFallSpeed;
+
+            // --- SALTO ---
+            if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
             {
-                move.Normalize();
-                Center += move * MoveSpeed * dt;
+                velocity.Y = JumpSpeed;
+                onGround = false;
+                jumpBufferCounter = 0f;
+                coyoteTimeCounter = 0f;
             }
-            lastState = Keyboard.GetState();
+
+            // --- MOVIMIENTO + COLISIONES ---
+            if (TileMap != null)
+            {
+                // X
+                destinationRectangle.X += (int)(velocity.X * dt);
+                TileMap.CheckCollisionHorizontal(this);
+
+                // Y
+                destinationRectangle.Y += (int)(velocity.Y * dt);
+                onGround = false;
+                TileMap.CheckCollisionVertical(this);
+            }
+            else
+            {
+                destinationRectangle.X += (int)(velocity.X * dt);
+                destinationRectangle.Y += (int)(velocity.Y * dt);
+            }
+
+            // 🔹 Atenuar knockback horizontal con el tiempo
+            knockbackX = MathHelper.Lerp(knockbackX, 0f, 5f * dt);
+
+            prevState = ks;
+
+            base.Update(gameTime);
         }
     }
 }
