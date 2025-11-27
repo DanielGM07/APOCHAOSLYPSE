@@ -5,19 +5,41 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace POCHAOSLYPSE
 {
+    public enum EnemyKind
+    {
+        Light,   // id 10
+        Medium,  // id 11
+        Heavy    // id 12
+    }
+
+    public class EnemySpawn
+    {
+        public EnemyKind Kind;
+        public Vector2   Position;
+
+        public EnemySpawn(EnemyKind kind, Vector2 position)
+        {
+            Kind     = kind;
+            Position = position;
+        }
+    }
+
     public class TileMap
     {
-        public List<Block> blocks { get; } = new();
+        public List<Block>     blocks      { get; } = new();
+        public List<EnemySpawn> EnemySpawns { get; } = new();
+
         public bool isCollidable { get; }
-        public bool canDraw { get; }
-        private int scaleTexture = 16;
-        private int tileTexture = 16;
+        public bool canDraw      { get; }
+
+        private int scaleTexture       = 16;
+        private int tileTexture        = 16;
         private int numberOfTilesPerRow = 13;
 
         public TileMap(bool isCollidable, bool canDraw)
         {
             this.isCollidable = isCollidable;
-            this.canDraw = canDraw;
+            this.canDraw      = canDraw;
         }
 
         public void GetBlocks(string filePathj)
@@ -40,9 +62,22 @@ namespace POCHAOSLYPSE
                     if (blockId < 0)
                         continue;
 
-                    Point point = new(x, y);
-                    Rectangle dest = GetDestRect(point);
-                    Rectangle src = GetSrcRect(blockId);
+                    Point     point = new(x, y);
+                    Rectangle dest  = GetDestRect(point);
+                    Rectangle src   = GetSrcRect(blockId);
+
+                    // 🔹 IDs especiales 10/11/12 → spawns de enemigos, NO bloques
+                    if (blockId == 10 || blockId == 11 || blockId == 12)
+                    {
+                        EnemyKind kind = EnemyKind.Light;
+                        if (blockId == 11) kind = EnemyKind.Medium;
+                        if (blockId == 12) kind = EnemyKind.Heavy;
+
+                        // Centro del tile como posición del spawn
+                        EnemySpawns.Add(new EnemySpawn(kind, dest.Center.ToVector2()));
+                        // No agregamos Block, este tile solo sirve para spawnear
+                        continue;
+                    }
 
                     Block block = null;
 
@@ -139,7 +174,6 @@ namespace POCHAOSLYPSE
                 if (!p.IsAlive)
                     continue;
 
-                // AABB aproximado de la bala
                 Rectangle projRect = new Rectangle(
                     (int)(p.Position.X - p.Radius),
                     (int)(p.Position.Y - p.Radius),
@@ -151,27 +185,23 @@ namespace POCHAOSLYPSE
                 {
                     if (block.collider.Intersects(projRect))
                     {
-                        // Si es explosivo, crear una explosión
                         if (p.IsExplosive && explosions != null)
                         {
                             explosions.Add(new Explosion(
                                 p.Position,
                                 p.ExplosionRadius,
-                                0.18f,          // dura ~0.18 segundos
+                                0.18f,
                                 Color.Red
                             ));
 
-                            // Shake extra en la explosión del rocket
                             Camera.Instance.Shake(20f, 0.2f);
                         }
 
-                        // Matar la bala
                         p.Lifetime = 0f;
                         break;
                     }
                 }
             }
         }
-
     }
 }

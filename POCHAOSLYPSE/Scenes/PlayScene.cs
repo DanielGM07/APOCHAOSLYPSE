@@ -7,12 +7,10 @@ namespace POCHAOSLYPSE
 {
     public class PlayScene : IScene
     {
-        // ⭐ CAMBIO ⭐
-        // Ahora la escena almacena la ruta del mapa y tileset
         private readonly string mapPath;
         private readonly string tilesetPath;
 
-        private TileMap tileMap;
+        private TileMap  tileMap;
         private Texture2D tilesetTexture;
         private Texture2D pixel;
 
@@ -23,28 +21,27 @@ namespace POCHAOSLYPSE
         private Weapon rocketLauncher;
         private Weapon katana;
         private Weapon gatlingGun;
-        private GrapplingHookWeapon grapplingHook;
-        private FlamethrowerWeapon flamethrower;
+        private GrapplingHookWeapon  grapplingHook;
+        private FlamethrowerWeapon   flamethrower;
 
         private Weapon currentWeapon;
 
-        private readonly List<Projectile> projectiles = new();
-        private readonly List<Explosion> explosions = new();
-        private readonly List<FlameParticle> flames = new();
+        private readonly List<Projectile>    projectiles       = new(); // del player
+        private readonly List<Projectile>    enemyProjectiles  = new(); // de enemigos (no chocan con el mapa)
+        private readonly List<Explosion>     explosions        = new();
+        private readonly List<FlameParticle> flames            = new();
+
+        private readonly List<Enemy>         enemies           = new();
 
         private SpriteFont hudFont;
 
         private MouseState prevMouse;
 
-
-        // ⭐ CAMBIO ⭐
-        // PlayScene ahora recibe el mapa y tileset por parámetro
         public PlayScene(string mapPath, string tilesetPath)
         {
-            this.mapPath = mapPath;
+            this.mapPath    = mapPath;
             this.tilesetPath = tilesetPath;
         }
-
 
         public void LoadContent()
         {
@@ -57,13 +54,9 @@ namespace POCHAOSLYPSE
             pixel.SetData(new[] { Color.White });
             Rectangle pixelRectangle = new(0, 0, 1, 1);
 
-            // ⭐ CAMBIO ⭐
-            // TileMap ahora usa el mapa recibido por constructor
             tileMap = new TileMap(isCollidable: false, canDraw: true);
             tileMap.GetBlocks(mapPath);
 
-            // ⭐ CAMBIO ⭐
-            // Tileset ahora también viene del constructor
             tilesetTexture = loader.LoadImage(tilesetPath);
 
             // Player
@@ -89,16 +82,70 @@ namespace POCHAOSLYPSE
 
             flamethrower = new FlamethrowerWeapon(pixel, pixelRectangle, new Rectangle(0, 0, 55, 12), Color.Orange);
 
-            currentWeapon = shotgun;
-        }
+            currentWeapon = ak47;
 
+            // 🔹 Spawnear enemigos desde los EnemySpawns del TileMap
+// 🔹 Spawnear enemigos desde los EnemySpawns del TileMap
+enemies.Clear();
+foreach (var spawn in tileMap.EnemySpawns)
+{
+    // Tamaño distinto según el tipo de enemigo
+    int enemyWidth;
+    int enemyHeight;
+
+    switch (spawn.Kind)
+    {
+        case EnemyKind.Light:
+            enemyWidth  = 24;
+            enemyHeight = 32;
+            break;
+
+        case EnemyKind.Medium:
+            enemyWidth  = 48;
+            enemyHeight = 64;
+            break;
+
+        case EnemyKind.Heavy:
+            enemyWidth  = 64;
+            enemyHeight = 96;
+            break;
+
+        default:
+            enemyWidth  = 32;
+            enemyHeight = 32;
+            break;
+    }
+
+    // Centramos el rect usando el centro del tile como posición
+    Rectangle enemyRect = new(
+        (int)spawn.Position.X - enemyWidth / 2,
+        (int)spawn.Position.Y - enemyHeight,   // apoyado “de pie” sobre el tile
+        enemyWidth,
+        enemyHeight
+    );
+
+    Color col = spawn.Kind switch
+    {
+        EnemyKind.Light  => Color.Cyan,
+        EnemyKind.Medium => Color.Orange,
+        EnemyKind.Heavy  => Color.DarkRed,
+        _                => Color.IndianRed
+    };
+
+    var enemy = new Enemy(pixel, pixelRectangle, enemyRect, col, spawn.Kind)
+    {
+        TileMap = tileMap
+    };
+
+    enemies.Add(enemy);
+}
+        }
 
         public void UnloadContent()
         {
             pixel?.Dispose();
             tilesetTexture?.Dispose();
         }
-
 
         public void Update(GameTime gameTime)
         {
@@ -119,7 +166,15 @@ namespace POCHAOSLYPSE
             // Player
             player.Update(gameTime);
 
-            // Aimed direction
+            // 🔴 NUEVO: si el player muere, volver al menú
+            if (!player.isAlive)
+            {
+                // Sacamos la PlayScene del stack → queda el MenuScene
+                Game1.SceneManager.RemoveScene();
+                return; // IMPORTANTÍSIMO: no seguir usando player ni nada de esta escena
+            }
+
+            // Dirección hacia el mouse (mundo)
             Vector2 mouseWorld = Camera.Instance.ScreenToCamera(mouse.Position.ToVector2());
             Vector2 aimDir     = mouseWorld - player.Center;
             if (aimDir != Vector2.Zero)
@@ -150,29 +205,29 @@ namespace POCHAOSLYPSE
             else
                 player.MoveSpeed = baseMoveSpeed;
 
-            // Posición y update del arma
+            // Posición arma
             currentWeapon.Position = player.Center + aimDir * 30f;
             currentWeapon.Update(gameTime);
 
-            // LÓGICA DE DISPARO
-            if (currentWeapon is GrapplingHookWeapon hook)
+            // Disparo según tipo
+            if (currentWeapon is GrapplingHookWeapon hookWeapon)
             {
                 Vector2 muzzle = player.Center + aimDir * 40f;
 
                 if (leftJustPressed)
-                    hook.StartGrapple(muzzle, aimDir, player);
+                    hookWeapon.StartGrapple(muzzle, aimDir, player);
 
-                hook.UpdateHook(gameTime, tileMap, player, leftDown);
+                hookWeapon.UpdateHook(gameTime, tileMap, player, leftDown);
 
                 if (leftJustReleased)
-                    hook.Release();
+                    hookWeapon.Release();
             }
-            else if (currentWeapon is FlamethrowerWeapon flame)
+            else if (currentWeapon is FlamethrowerWeapon flameWeapon)
             {
                 if (leftDown)
                 {
                     Vector2 muzzle = player.Center + aimDir * 35f;
-                    flame.EmitFlames(muzzle, aimDir, flames, player);
+                    flameWeapon.EmitFlames(muzzle, aimDir, flames, player);
                 }
 
                 if (grapplingHook.CurrentHook != null)
@@ -190,22 +245,39 @@ namespace POCHAOSLYPSE
                     grapplingHook.Release();
             }
 
-            // Proyectiles
+            // Proyectiles del player
             foreach (var p in projectiles)
                 p.Update(gameTime);
 
             tileMap.HandleProjectileCollisions(projectiles, explosions);
             projectiles.RemoveAll(p => !p.IsAlive);
 
-            // Explosiones
+            // 🔹 IA de enemigos + proyectiles enemigos (no chocan con el mapa)
+            foreach (var enemy in enemies)
+            {
+                if (!enemy.isAlive) continue;
+                enemy.UpdateAI(gameTime, player, tileMap, enemyProjectiles);
+            }
+
+            for (int i = 0; i < enemyProjectiles.Count; i++)
+                enemyProjectiles[i].Update(gameTime);
+            enemyProjectiles.RemoveAll(p => !p.IsAlive);
+
+            // 🔹 Explosiones
             foreach (var e in explosions)
                 e.Update(gameTime);
             explosions.RemoveAll(e => !e.IsAlive);
 
-            // Fuego
+            // 🔹 Fuego
             foreach (var f in flames)
                 f.Update(gameTime);
             flames.RemoveAll(f => !f.IsAlive);
+
+            // 🔹 Colisiones: proyectiles del player → enemigos
+            HandlePlayerProjectilesVsEnemies(projectiles, enemies);
+
+            // 🔹 Colisiones: proyectiles enemigos → player
+            HandleEnemyProjectilesVsPlayer(enemyProjectiles, player);
 
             // Cámara
             Camera.Instance.FollowPlayer(gameTime, player);
@@ -214,9 +286,73 @@ namespace POCHAOSLYPSE
             prevMouse = mouse;
         }
 
+        private void HandlePlayerProjectilesVsEnemies(List<Projectile> bullets, List<Enemy> enemies)
+        {
+            foreach (var bullet in bullets)
+            {
+                if (!bullet.IsAlive) continue;
+
+                Rectangle projRect = new(
+                    (int)(bullet.Position.X - bullet.Radius),
+                    (int)(bullet.Position.Y - bullet.Radius),
+                    (int)(bullet.Radius * 2f),
+                    (int)(bullet.Radius * 2f)
+                );
+
+                foreach (var enemy in enemies)
+                {
+                    if (!enemy.isAlive) continue;
+
+                    if (projRect.Intersects(enemy.destinationRectangle))
+                    {
+                        enemy.Health -= (int)bullet.Damage;
+                        bullet.Lifetime = 0f;
+
+                        if (!enemy.isAlive)
+                        {
+                            // opcional: mini shake o algo
+                            Camera.Instance.Shake(4f, 0.1f);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void HandleEnemyProjectilesVsPlayer(List<Projectile> bullets, Player player)
+        {
+            foreach (var bullet in bullets)
+            {
+                if (!bullet.IsAlive) continue;
+
+                Rectangle projRect = new(
+                    (int)(bullet.Position.X - bullet.Radius),
+                    (int)(bullet.Position.Y - bullet.Radius),
+                    (int)(bullet.Radius * 2f),
+                    (int)(bullet.Radius * 2f)
+                );
+
+                if (projRect.Intersects(player.destinationRectangle))
+                {
+                    player.Health -= (int)bullet.Damage;
+                    bullet.Lifetime = 0f;
+                    Camera.Instance.Shake(6f, 0.1f);
+                }
+            }
+        }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
+            // Fondo gris clarito para que no se vea negro
+            spriteBatch.Draw(pixel,
+                new Rectangle(
+                    Camera.Instance.ViewPortRectangle.X - 2000,
+                    Camera.Instance.ViewPortRectangle.Y - 2000,
+                    4000,
+                    4000),
+                new Color(200, 200, 200)); // gris oscuro suave
+
             tileMap.Draw(tilesetTexture, gameTime, spriteBatch);
 
             if (grapplingHook.CurrentHook != null)
@@ -225,11 +361,27 @@ namespace POCHAOSLYPSE
             foreach (var flame in flames)
                 flame.Draw(spriteBatch, pixel);
 
+            // Enemigos
+            foreach (var enemy in enemies)
+            {
+                if (!enemy.isAlive) continue;
+
+                enemy.Draw(spriteBatch, gameTime);
+
+                if (enemy.MeleeHitbox.HasValue)
+                {
+                    spriteBatch.Draw(pixel, enemy.MeleeHitbox.Value, Color.Red * 0.4f);
+                }
+            }
+
             player.Draw(spriteBatch, gameTime);
 
             currentWeapon.Draw(spriteBatch, gameTime);
 
             foreach (var proj in projectiles)
+                proj.Draw(spriteBatch, pixel);
+
+            foreach (var proj in enemyProjectiles)
                 proj.Draw(spriteBatch, pixel);
 
             foreach (var ex in explosions)
@@ -239,7 +391,7 @@ namespace POCHAOSLYPSE
             {
                 spriteBatch.DrawString(
                     hudFont,
-                    $"Arma actual: {currentWeapon.GetType().Name} (MOVE SPD: {player.MoveSpeed:0})",
+                    $"Arma actual: {currentWeapon.GetType().Name} (MOVE SPD: {player.MoveSpeed:0}) HP:{player.Health}",
                     new Vector2(10, 10),
                     Color.White
                 );
