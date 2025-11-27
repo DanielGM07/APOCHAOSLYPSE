@@ -17,7 +17,7 @@ namespace POCHAOSLYPSE
         private float MoveSpeed;
         private float Gravity      = 2000f;
         private float MaxFallSpeed = 1000f;
-        private float JumpSpeed    = -1250f;
+        private float JumpSpeed    = -650f;
 
         // Wander
         private float wanderTimer = 0f;
@@ -32,6 +32,9 @@ namespace POCHAOSLYPSE
 
         public Rectangle? MeleeHitbox { get; private set; }
         private float meleeHitboxTimer = 0f;
+
+        // ✅ Knockback horizontal acumulado (igual idea que en Player)
+        private float knockbackX = 0f;
 
         public Enemy(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color, EnemyKind kind)
             : base(texture, srcRec, destRec, color)
@@ -48,7 +51,7 @@ namespace POCHAOSLYPSE
                 case EnemyKind.Heavy:
                     Health          = 300;
                     MoveSpeed       = 80f;
-                    DetectionRadius = 450f;
+                    DetectionRadius = 350f;
                     meleeCooldown   = 1.7f;
                     rangedCooldown  = 2.8f;
                     break;
@@ -56,7 +59,7 @@ namespace POCHAOSLYPSE
                 case EnemyKind.Medium:
                     Health          = 150;
                     MoveSpeed       = 220f;
-                    DetectionRadius = 550f;
+                    DetectionRadius = 450f;
                     meleeCooldown   = 0.7f;
                     rangedCooldown  = 1.1f;
                     break;
@@ -109,6 +112,13 @@ namespace POCHAOSLYPSE
             }
         }
 
+        // ✅ Knockback estilo player: horizontal acumulado, vertical directo
+        public override void ApplyKnockback(Vector2 impulse)
+        {
+            knockbackX += impulse.X;
+            velocity.Y += impulse.Y;
+        }
+
         public void UpdateAI(GameTime gameTime, Player player, TileMap tileMap, List<Projectile> enemyProjectiles)
         {
             TileMap = tileMap;
@@ -145,8 +155,11 @@ namespace POCHAOSLYPSE
                 }
             }
 
-            // Aplicar velocidad horizontal
-            velocity.X = desiredVel.X;
+            // ✅ velocidad horizontal = IA + knockback acumulado
+            velocity.X = desiredVel.X + knockbackX;
+
+            // ✅ fricción del knockback (igual idea que en Player)
+            knockbackX = MathHelper.Lerp(knockbackX, 0f, 5f * dt);
 
             // Gravedad + movimiento
             ApplyGravity(dt);

@@ -14,8 +14,11 @@ namespace POCHAOSLYPSE
         private Rectangle btnExit;
 
         private Color colResume = Color.White;
-        private Color colMenu = Color.White;
-        private Color colExit = Color.White;
+        private Color colMenu   = Color.White;
+        private Color colExit   = Color.White;
+
+        // ✅ para que el click no se repita mientras está apretado
+        private MouseState prevMouse;
 
         public void LoadContent()
         {
@@ -29,8 +32,10 @@ namespace POCHAOSLYPSE
             int h = loader.graphics.PreferredBackBufferHeight;
 
             btnResume = new Rectangle(w / 2 - 150, h / 2 - 100, 300, 60);
-            btnMenu   = new Rectangle(w / 2 - 150, h / 2 - 20, 300, 60);
-            btnExit   = new Rectangle(w / 2 - 150, h / 2 + 60, 300, 60);
+            btnMenu   = new Rectangle(w / 2 - 150, h / 2 - 20,  300, 60);
+            btnExit   = new Rectangle(w / 2 - 150, h / 2 + 60,  300, 60);
+
+            prevMouse = Mouse.GetState();
         }
 
         public void UnloadContent() {}
@@ -40,15 +45,20 @@ namespace POCHAOSLYPSE
             var mouse = Mouse.GetState();
             Point m = mouse.Position;
 
+            bool leftDown    = mouse.LeftButton == ButtonState.Pressed;
+            bool leftWasDown = prevMouse.LeftButton == ButtonState.Pressed;
+            bool leftJustPressed = leftDown && !leftWasDown;
+
             colResume = btnResume.Contains(m) ? Color.Yellow : Color.White;
             colMenu   = btnMenu.Contains(m)   ? Color.Yellow : Color.White;
             colExit   = btnExit.Contains(m)   ? Color.Yellow : Color.White;
 
-            if (mouse.LeftButton == ButtonState.Pressed)
+            if (leftJustPressed)
             {
                 if (btnResume.Contains(m))
+                {
                     Game1.SceneManager.RemoveScene();
-
+                }
                 else if (btnMenu.Contains(m))
                 {
                     Game1.SceneManager.RemoveScene(); // salir del pause
@@ -57,8 +67,12 @@ namespace POCHAOSLYPSE
                     Game1.SceneManager.getScene().LoadContent();
                 }
                 else if (btnExit.Contains(m))
+                {
                     Game1.ExitGameRequested = true;
+                }
             }
+
+            prevMouse = mouse;
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -69,8 +83,8 @@ namespace POCHAOSLYPSE
                 Color.Black * 0.5f);
 
             spriteBatch.Draw(pixel, btnResume, colResume * 0.4f);
-            spriteBatch.Draw(pixel, btnMenu, colMenu * 0.4f);
-            spriteBatch.Draw(pixel, btnExit, colExit * 0.4f);
+            spriteBatch.Draw(pixel, btnMenu,   colMenu   * 0.4f);
+            spriteBatch.Draw(pixel, btnExit,   colExit   * 0.4f);
 
             spriteBatch.DrawString(font, "RESUME",
                 new Vector2(btnResume.X + 80, btnResume.Y + 15), colResume);

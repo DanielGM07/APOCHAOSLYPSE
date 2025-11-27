@@ -11,7 +11,7 @@ namespace POCHAOSLYPSE
         private static readonly float ConeAngle = MathHelper.ToRadians(40f);
         private const float BulletSpeed    = 500f;
         private const float BulletLifetime = 0.8f;
-        private const float DamagePerPellet = 6f;
+        private const float DamagePerPellet = 15f;
 
         public Shotgun(Texture2D texture, Rectangle srcRec, Rectangle destRect, Color color)
             : base(texture, srcRec, destRect, fireRate: 1.0f, knockback: 1200f, color)

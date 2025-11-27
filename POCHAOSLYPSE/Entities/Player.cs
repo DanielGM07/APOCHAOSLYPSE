@@ -54,11 +54,20 @@ namespace POCHAOSLYPSE
 
         // 🟥 DIVE SLAM
         private bool  isDiveSlam          = false;
-        private float diveSpeed           = 1800f;
+        private float diveSpeed           = 1200f;
         private float diveAccumulatedTime = 0f;
         private float diveMaxMultiplier   = 3f;
 
+        // Daño base del slam (según cuánto tiempo estuviste cayendo)
         public float SlamDamage => 20f * MathHelper.Clamp(diveAccumulatedTime * 6f, 1f, diveMaxMultiplier);
+
+        // Radio del slam
+        public float SlamRadius => 120f;
+
+        // Info del último impacto de slam (para que la escena aplique daño)
+        public bool   SlamJustLanded { get; private set; }   // true sólo el frame en que impacta
+        public Vector2 SlamCenter    { get; private set; }   // centro del impacto
+        public float  LastSlamDamage { get; private set; }   // daño calculado en ese impacto
 
         public Player(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color)
             : base(texture, srcRec, destRec, color)
@@ -79,6 +88,9 @@ namespace POCHAOSLYPSE
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             var ks = Keyboard.GetState();
+
+            // 🔹 resetear flag de slam cada frame
+            SlamJustLanded = false;
 
             // INPUT SALTO
             bool jumpHeld =
@@ -162,30 +174,44 @@ namespace POCHAOSLYPSE
             }
 
             // DIVE SLAM
-            bool divePressed = ks.IsKeyDown(Keys.S) || ks.IsKeyDown(Keys.Down);
+            bool diveHeld = ks.IsKeyDown(Keys.S) || ks.IsKeyDown(Keys.Down);
+            bool divePressedThisFrame =
+                diveHeld &&
+                !(prevState.IsKeyDown(Keys.S) || prevState.IsKeyDown(Keys.Down));
 
-            if (!onGround && !isDashing)
+            // ✅ solo se puede INICIAR el slam en el AIRE y cuando estás cayendo (velocity.Y >= 0)
+            if (!onGround && !isDashing && velocity.Y >= 0f)
             {
-                if (divePressed)
+                if (divePressedThisFrame && !isDiveSlam)
                 {
-                    if (!isDiveSlam)
-                    {
-                        isDiveSlam = true;
-                        diveAccumulatedTime = 0f;
-                    }
+                    isDiveSlam = true;
+                    diveAccumulatedTime = 0f;
+                }
 
+                if (isDiveSlam)
+                {
                     diveAccumulatedTime += dt;
                     velocity.Y = diveSpeed * MathHelper.Clamp(1f + diveAccumulatedTime, 1f, diveMaxMultiplier);
                 }
             }
 
+            // 🔹 cuando tocas el piso después de un dive slam
             if (onGround && isDiveSlam)
             {
                 isDiveSlam = false;
-                float dmg = SlamDamage;
-                float radius = 120f;
+
+                float dmg    = SlamDamage;
+                float radius = SlamRadius;
+
+                // Guardamos info para que la escena aplique el daño en área
+                SlamJustLanded = true;
+                LastSlamDamage = dmg;
+                SlamCenter     = this.Center;
+
                 System.Diagnostics.Debug.WriteLine($"SLAM DAMAGE: {dmg}");
-                // FUTURO: acá vas a aplicar daño a enemigos dentro de 'radius'
+
+                // Reseteamos acumulador para futuros slams
+                diveAccumulatedTime = 0f;
             }
 
             // MOVIMIENTO HORIZONTAL

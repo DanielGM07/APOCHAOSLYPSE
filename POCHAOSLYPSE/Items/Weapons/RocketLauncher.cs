@@ -8,7 +8,7 @@ namespace POCHAOSLYPSE
     {
         private const float RocketSpeed    = 350f;
         private const float RocketLifetime = 2.5f;
-        private const float RocketDamage   = 40f;
+        private const float RocketDamage   = 50f;
 
         public float ExplosionRadius = 80f;
 

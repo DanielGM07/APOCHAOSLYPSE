@@ -21,11 +21,11 @@
             "scaleInEditor": 1
         },
         "test1.tmx": {
-            "scale": 0.5,
+            "scale": 0.75,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 711,
-                "y": 480
+                "x": 684.6666666666665,
+                "y": 350.6666666666667
             }
         }
     },

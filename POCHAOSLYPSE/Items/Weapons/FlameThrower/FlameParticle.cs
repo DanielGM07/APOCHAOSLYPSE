@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -89,18 +90,21 @@ namespace POCHAOSLYPSE
             var rect = BoundingBox;
             spriteBatch.Draw(pixel, rect, c);
         }
+        public void ApplyDamage(IEnumerable<Enemy> enemies, float dt)
+        {
+            if (!IsAlive) return;
 
-        // 🧯 FUTURO: cuando tengas enemies en la escena, podés hacer algo así:
-        //
-        // public void ApplyDamage(IEnumerable<Enemy> enemies, float dt)
-        // {
-        //     foreach (var e in enemies)
-        //     {
-        //         if (e.destinationRectangle.Intersects(this.BoundingBox))
-        //         {
-        //             e.Health -= DamagePerSecond * dt;
-        //         }
-        //     }
-        // }
+            Rectangle hitbox = this.BoundingBox;
+
+            foreach (var e in enemies)
+            {
+                if (!e.isAlive) continue;
+
+                if (hitbox.Intersects(e.destinationRectangle))
+                {
+                    e.Health -= (int)(DamagePerSecond * dt);
+                }
+            }
+        }
     }
 }
