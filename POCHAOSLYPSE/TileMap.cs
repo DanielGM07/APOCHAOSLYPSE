@@ -32,7 +32,7 @@ namespace POCHAOSLYPSE
         public bool isCollidable { get; }
         public bool canDraw      { get; }
 
-        private int scaleTexture       = 16;
+        private int scaleTexture       = 16; // this cannot be changed, lame and boring
         private int tileTexture        = 16;
         private int numberOfTilesPerRow = 13;
 
@@ -67,7 +67,7 @@ namespace POCHAOSLYPSE
                     Rectangle src   = GetSrcRect(blockId);
 
                     // 🔹 IDs especiales 10/11/12 → spawns de enemigos, NO bloques
-                    if (blockId == 10 || blockId == 11 || blockId == 12)
+                    if (blockId == 10 || blockId == 11 || blockId == 12) // this should be part of Blocks
                     {
                         EnemyKind kind = EnemyKind.Light;
                         if (blockId == 11) kind = EnemyKind.Medium;
@@ -79,7 +79,7 @@ namespace POCHAOSLYPSE
                         continue;
                     }
 
-                    Block block = null;
+                    Block block;
 
                     switch (blockId)
                     {

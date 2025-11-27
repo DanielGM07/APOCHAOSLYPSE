@@ -180,7 +180,6 @@ namespace POCHAOSLYPSE
                 diveHeld &&
                 !(prevState.IsKeyDown(Keys.S) || prevState.IsKeyDown(Keys.Down));
 
-            // ✅ solo se puede INICIAR el slam en el AIRE y cuando estás cayendo (velocity.Y >= 0)
             if (!onGround && !isDashing && velocity.Y >= 0f)
             {
                 if (divePressedThisFrame && !isDiveSlam)
@@ -196,7 +195,6 @@ namespace POCHAOSLYPSE
                 }
             }
 
-            // 🔹 cuando tocas el piso después de un dive slam
             if (onGround && isDiveSlam)
             {
                 isDiveSlam = false;
@@ -208,8 +206,6 @@ namespace POCHAOSLYPSE
                 SlamJustLanded = true;
                 LastSlamDamage = dmg;
                 SlamCenter     = this.Center;
-
-                System.Diagnostics.Debug.WriteLine($"SLAM DAMAGE: {dmg}");
 
                 // Reseteamos acumulador para futuros slams
                 diveAccumulatedTime = 0f;
