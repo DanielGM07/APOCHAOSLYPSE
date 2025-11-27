@@ -18,28 +18,22 @@ namespace POCHAOSLYPSE
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // Ventana del tamaño del monitor, en modo ventana
             var displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
-            _graphics.PreferredBackBufferWidth  = displayMode.Width;
+            _graphics.PreferredBackBufferWidth = displayMode.Width;
             _graphics.PreferredBackBufferHeight = displayMode.Height;
             _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
-            // Inicializar cámara
             Camera.Initialize(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         }
 
         protected override void Initialize()
         {
-            // ContentLoader carga font y deja GraphicsDevice accesible
             ContentLoader.Initialize(_graphics, Content, "Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5");
 
             Camera.Instance.CenterOrigin();
 
-            // SceneManager global
             SceneManager = new SceneManager();
-
-            // Arrancamos en el menú principal
             SceneManager.AddScene(new MenuScene());
 
             base.Initialize();
@@ -48,7 +42,6 @@ namespace POCHAOSLYPSE
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
             SceneManager.getScene().LoadContent();
         }
 
@@ -63,7 +56,6 @@ namespace POCHAOSLYPSE
             var kb = Keyboard.GetState();
             bool escJustPressed = kb.IsKeyDown(Keys.Escape) && !_prevKeyboard.IsKeyDown(Keys.Escape);
 
-            // 🔹 SISTEMA DE PAUSA GLOBAL con edge detection en ESC
             if (escJustPressed)
             {
                 var current = SceneManager.getScene();
@@ -81,7 +73,7 @@ namespace POCHAOSLYPSE
 
             SceneManager.getScene().Update(gameTime);
 
-            _prevKeyboard = kb; // guardar estado para el próximo frame
+            _prevKeyboard = kb;
 
             base.Update(gameTime);
         }
@@ -91,14 +83,17 @@ namespace POCHAOSLYPSE
             var current = SceneManager.getScene();
 
             if (current is PlayScene)
-                GraphicsDevice.Clear(new Color(200, 200, 200));  // gris suave
+                GraphicsDevice.Clear(new Color(200, 200, 200));
             else
                 GraphicsDevice.Clear(Color.Black);
 
+            // --------------------
+            // DIBUJO DEL MUNDO
+            // --------------------
             if (current is MenuScene || current is PauseScene)
             {
                 _spriteBatch.Begin(
-                    samplerState: SamplerState.PointClamp   // sin transformMatrix
+                    samplerState: SamplerState.PointClamp
                 );
             }
             else
@@ -112,6 +107,20 @@ namespace POCHAOSLYPSE
             current.Draw(gameTime, _spriteBatch);
 
             _spriteBatch.End();
+
+            // --------------------
+            //     HUD (PlayScene)
+            // --------------------
+            if (current is PlayScene ps)
+            {
+                _spriteBatch.Begin(
+                    samplerState: SamplerState.PointClamp
+                );
+
+                ps.DrawHUD(_spriteBatch);
+
+                _spriteBatch.End();
+            }
 
             base.Draw(gameTime);
         }

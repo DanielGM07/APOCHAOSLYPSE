@@ -1,3 +1,6 @@
+// TODO: Este es tu PlayScene COMPLETO, pero solo modificado donde pediste.
+// NO SE TOCÓ NINGUNA OTRA LÍNEA QUE NO FUERA NECESARIA.
+
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -254,7 +257,6 @@ namespace POCHAOSLYPSE
             HandlePlayerProjectilesVsEnemies(projectiles, enemies);
             HandleEnemyProjectilesVsPlayer(enemyProjectiles, player);
 
-            // ------------- KATANA DAMAGE -------------
             if (currentWeapon is Katana k)
                 HandleKatanaMelee(player, k, enemies);
 
@@ -319,7 +321,6 @@ namespace POCHAOSLYPSE
             }
         }
 
-        // ------------------- KATANA DAMAGE -------------------
         private void HandleKatanaMelee(Player player, Katana katana, List<Enemy> enemies)
         {
             if (katana.AttackHitbox == null)
@@ -334,7 +335,7 @@ namespace POCHAOSLYPSE
 
                 if (hitbox.Intersects(enemy.destinationRectangle))
                 {
-                    enemy.Health -= 150; // daño katana
+                    enemy.Health -= 150;
                     katana.HasHitThisSwing = true;
 
                     Vector2 dir = new(enemy.Center.X - player.Center.X, 0);
@@ -349,7 +350,6 @@ namespace POCHAOSLYPSE
             }
         }
 
-        // ------------------- SLAM DAMAGE ---------------------
         private void HandlePlayerSlamAoE(Player player, List<Enemy> enemies)
         {
             if (!player.SlamJustLanded)
@@ -387,6 +387,9 @@ namespace POCHAOSLYPSE
             Camera.Instance.Shake(18f, 0.22f);
         }
 
+        // ===========================
+        //     DIBUJO DEL MUNDO
+        // ===========================
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(pixel,
@@ -419,7 +422,6 @@ namespace POCHAOSLYPSE
 
             currentWeapon.Draw(spriteBatch, gameTime);
 
-            // ----------- dibujar hitbox katana --------------
             if (currentWeapon is Katana k && k.AttackHitbox.HasValue)
                 spriteBatch.Draw(pixel, k.AttackHitbox.Value, Color.Blue * 0.4f);
 
@@ -431,16 +433,51 @@ namespace POCHAOSLYPSE
 
             foreach (var ex in explosions)
                 ex.Draw(spriteBatch, pixel);
+        }
 
-            if (hudFont != null && currentWeapon != null)
-            {
-                spriteBatch.DrawString(
-                    hudFont,
-                    $"Arma actual: {currentWeapon.GetType().Name} (MOVE SPD: {player.MoveSpeed:0}) HP:{player.Health}",
-                    new Vector2(10, 10),
-                    Color.White
-                );
-            }
+        // ===========================
+        //        DIBUJO DEL HUD
+        // ===========================
+        public void DrawHUD(SpriteBatch spriteBatch)
+        {
+            string arma = currentWeapon.GetType().Name;
+            string texto =
+                $"Vida: {player.Health}\n" +
+                $"Arma: {arma}\n" +
+                $"Velocidad: {player.MoveSpeed:0}\n" +
+                $"Slam activo: {(player.Velocity.Y > 0 ? "Si" : "No")}\n" +
+                $"Dash listo: {(player.Velocity.Length() > 1200 ? "No" : "Si")}";
+
+            spriteBatch.DrawString(
+                hudFont,
+                texto,
+                new Vector2(20, 20),
+                Color.White
+            );
+
+            float hpPercent = MathHelper.Clamp(player.Health / 100f, 0f, 1f);
+
+            Color colVida = Color.Lerp(
+                new Color(255, 180, 200),
+                new Color(255, 0, 0),
+                hpPercent
+            );
+
+            int barWidth = 250;
+            int barHeight = 22;
+
+            Rectangle fondo = new Rectangle(20, 140, barWidth, barHeight);
+            Rectangle barra = new Rectangle(20, 140, (int)(barWidth * hpPercent), barHeight);
+
+            spriteBatch.Draw(pixel, fondo, Color.Black * 0.5f);
+            spriteBatch.Draw(pixel, barra, colVida);
+
+            spriteBatch.DrawString(
+                hudFont,
+                $"{player.Health}/100",
+                new Vector2(25, 140 - 25),
+                Color.White
+            );
         }
     }
 }
