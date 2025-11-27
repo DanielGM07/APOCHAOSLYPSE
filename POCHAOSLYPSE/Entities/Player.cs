@@ -9,9 +9,9 @@ namespace POCHAOSLYPSE
         // -------------------------
         // MOVIMIENTO BASE (TUYO)
         // -------------------------
-        public float MoveSpeed    = 250f;
-        public float Gravity      = 2000f;
-        public float JumpSpeed    = -700f;
+        public float MoveSpeed = 250f;
+        public float Gravity = 2000f;
+        public float JumpSpeed = -700f;
         public float MaxFallSpeed = 1000f;
 
         // Coyote time
@@ -24,8 +24,8 @@ namespace POCHAOSLYPSE
 
         // Helper para cámara
         public Rectangle BoundingBox => destinationRectangle;
-        public Vector2   Velocity    => velocity;
-        public bool      FacingLeft  => isFacingLeft;
+        public Vector2 Velocity => velocity;
+        public bool FacingLeft => isFacingLeft;
 
         // Knockback horizontal acumulado
         private float knockbackX = 0f;
@@ -37,26 +37,26 @@ namespace POCHAOSLYPSE
         private float dashForce = 1000f;  // fuerza del dash (no velocidad directa)
 
         public TileMap TileMap { get; set; }
-        public Weapon  weapon;
+        public Weapon weapon;
 
-        // 🟦 DOBLE SALTO
+        // DOBLE SALTO
         private int maxJumps = 2;
         private int jumpsUsed = 0;
 
-        // 🟪 DASH OMNIDIRECCIONAL
-        private bool  isDashing      = false;
-        private float dashSpeed      = 900f;
-        private float dashDuration   = 0.55f;
-        private float dashTimer      = 0f;
-        private float dashCooldown   = 0.35f;
+        // DASH OMNIDIRECCIONAL
+        private bool isDashing = false;
+        private float dashSpeed = 900f;
+        private float dashDuration = 0.55f;
+        private float dashTimer = 0f;
+        private float dashCooldown = 0.35f;
         private float dashCooldownTimer = 0f;
         private Vector2 dashDirection = Vector2.Zero;
 
-        // 🟥 DIVE SLAM
-        private bool  isDiveSlam          = false;
-        private float diveSpeed           = 1200f;
+        // DIVE SLAM
+        private bool isDiveSlam = false;
+        private float diveSpeed = 1200f;
         private float diveAccumulatedTime = 0f;
-        private float diveMaxMultiplier   = 3f;
+        private float diveMaxMultiplier = 3f;
 
         // Daño base del slam (según cuánto tiempo estuviste cayendo)
         public float SlamDamage => 20f * MathHelper.Clamp(diveAccumulatedTime * 6f, 1f, diveMaxMultiplier);
@@ -65,14 +65,14 @@ namespace POCHAOSLYPSE
         public float SlamRadius => 120f;
 
         // Info del último impacto de slam (para que la escena aplique daño)
-        public bool   SlamJustLanded { get; private set; }   // true sólo el frame en que impacta
-        public Vector2 SlamCenter    { get; private set; }   // centro del impacto
-        public float  LastSlamDamage { get; private set; }   // daño calculado en ese impacto
+        public bool SlamJustLanded { get; private set; }   // true sólo el frame en que impacta
+        public Vector2 SlamCenter { get; private set; }   // centro del impacto
+        public float LastSlamDamage { get; private set; }   // daño calculado en ese impacto
 
         public Player(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color)
             : base(texture, srcRec, destRec, color)
         {
-            Health = 100;
+            Health = 10000;
         }
 
         public void Strafe() { }
@@ -135,10 +135,10 @@ namespace POCHAOSLYPSE
                     preDashVelocity = velocity;
 
                     dashDirection = Vector2.Zero;
-                    if (ks.IsKeyDown(Keys.W) || ks.IsKeyDown(Keys.Up))         dashDirection.Y = -1;
-                    if (ks.IsKeyDown(Keys.S) || ks.IsKeyDown(Keys.Down))       dashDirection.Y = 1;
-                    if (ks.IsKeyDown(Keys.A) || ks.IsKeyDown(Keys.Left))       dashDirection.X = -1;
-                    if (ks.IsKeyDown(Keys.D) || ks.IsKeyDown(Keys.Right))      dashDirection.X = 1;
+                    if (ks.IsKeyDown(Keys.W) || ks.IsKeyDown(Keys.Up)) dashDirection.Y = -1;
+                    if (ks.IsKeyDown(Keys.S) || ks.IsKeyDown(Keys.Down)) dashDirection.Y = 1;
+                    if (ks.IsKeyDown(Keys.A) || ks.IsKeyDown(Keys.Left)) dashDirection.X = -1;
+                    if (ks.IsKeyDown(Keys.D) || ks.IsKeyDown(Keys.Right)) dashDirection.X = 1;
 
                     if (dashDirection == Vector2.Zero)
                         dashDirection = isFacingLeft ? new Vector2(-1, 0) : new Vector2(1, 0);
@@ -200,13 +200,13 @@ namespace POCHAOSLYPSE
             {
                 isDiveSlam = false;
 
-                float dmg    = SlamDamage;
+                float dmg = SlamDamage;
                 float radius = SlamRadius;
 
                 // Guardamos info para que la escena aplique el daño en área
                 SlamJustLanded = true;
                 LastSlamDamage = dmg;
-                SlamCenter     = this.Center;
+                SlamCenter = this.Center;
 
                 System.Diagnostics.Debug.WriteLine($"SLAM DAMAGE: {dmg}");
 

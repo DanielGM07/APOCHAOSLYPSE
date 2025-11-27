@@ -7,9 +7,9 @@ namespace POCHAOSLYPSE
 {
     public class Shotgun : FireWeapon
     {
-        private const int   PelletCount    = 7;
-        private static readonly float ConeAngle = MathHelper.ToRadians(40f);
-        private const float BulletSpeed    = 500f;
+        private const int PelletCount = 7;
+        private static readonly float ConeAngle = MathHelper.ToRadians(20f);
+        private const float BulletSpeed = 500f;
         private const float BulletLifetime = 0.8f;
         private const float DamagePerPellet = 15f;
 
@@ -17,7 +17,7 @@ namespace POCHAOSLYPSE
             : base(texture, srcRec, destRect, fireRate: 1.0f, knockback: 1200f, color)
         {
             ShakeMagnitude = 18f;
-            ShakeDuration  = 0.16f;
+            ShakeDuration = 0.16f;
         }
 
         public override void Fire(Vector2 muzzle, Vector2 dir,
@@ -26,9 +26,9 @@ namespace POCHAOSLYPSE
         {
             if (!CanFire) return;
 
-            float baseAngle  = (float)Math.Atan2(dir.Y, dir.X);
+            float baseAngle = (float)Math.Atan2(dir.Y, dir.X);
             float startAngle = baseAngle - ConeAngle / 2f;
-            float endAngle   = baseAngle + ConeAngle / 2f;
+            float endAngle = baseAngle + ConeAngle / 2f;
 
             if (PelletCount <= 1)
             {
@@ -47,7 +47,7 @@ namespace POCHAOSLYPSE
             {
                 for (int i = 0; i < PelletCount; i++)
                 {
-                    float t     = i / (float)(PelletCount - 1);
+                    float t = i / (float)(PelletCount - 1);
                     float angle = MathHelper.Lerp(startAngle, endAngle, t);
 
                     Vector2 pelletDir = new((float)Math.Cos(angle), (float)Math.Sin(angle));
@@ -57,10 +57,10 @@ namespace POCHAOSLYPSE
                     var proj = new Projectile(
                         position: muzzle,
                         velocity: pelletDir * BulletSpeed,
-                        damage:   DamagePerPellet,
+                        damage: DamagePerPellet,
                         lifetime: BulletLifetime,
-                        color:    Color.OrangeRed,
-                        radius:   3f
+                        color: Color.OrangeRed,
+                        radius: 3f
                     );
 
                     projectiles.Add(proj);

@@ -8,19 +8,27 @@
     ],
     "fileStates": {
         "level2.tmx": {
-            "scale": 3,
+            "scale": 0.75,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 243.83333333333331,
-                "y": 307
+                "x": 580,
+                "y": 298.6666666666667
             }
         },
         "level3.tmx": {
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 534.3333333333333,
-                "y": 525.3333333333333
+                "x": 275.33333333333326,
+                "y": 267.33333333333326
+            }
+        },
+        "level4.tmx": {
+            "scale": 1.1202083333333333,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 480.2678073275061,
+                "y": 240.13390366375305
             }
         },
         "patron1.tsx": {
@@ -29,15 +37,15 @@
             "scaleInEditor": 1
         },
         "test1.tmx": {
-            "scale": 3,
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 319.16666666666663,
-                "y": 250
+                "x": 465.33333333333326,
+                "y": 82
             }
         }
     },
-    "last.exportedFilePath": "C:/ProyectosVS_DGM/APOCHAOSLYPSE/POCHAOSLYPSE/tiled",
+    "last.exportedFilePath": "C:/ProyectosDGM/APOCHAOSLYPSE/POCHAOSLYPSE/tiled",
     "last.imagePath": "/home/clumpl/Documentos/Proyectazo_Danielazo/POCHAOSLYPSE/Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Tilesets/library",
     "map.height": 30,
     "map.lastUsedExportFilter": "Archivos CSV (*.csv)",

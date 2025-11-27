@@ -8,7 +8,7 @@ namespace POCHAOSLYPSE
     public class GatlingGun : FireWeapon
     {
         // Velocidad de las balas
-        private const float BulletSpeed    = 850f;
+        private const float BulletSpeed = 850f;
         private const float BulletLifetime = 1.5f;
 
         // Daño bajito por bala
@@ -25,7 +25,7 @@ namespace POCHAOSLYPSE
         {
             // Shake moderado por tiro (se siente, pero no tanto como la escopeta)
             ShakeMagnitude = 5f;
-            ShakeDuration  = 0.05f;
+            ShakeDuration = 0.05f;
         }
 
         public override void Fire(Vector2 muzzle, Vector2 dir,
@@ -42,7 +42,7 @@ namespace POCHAOSLYPSE
 
             // Offset aleatorio dentro de un cono grande
             float offset = ((float)rng.NextDouble() - 0.5f) * SpreadAngle;
-            float angle  = baseAngle + offset;
+            float angle = baseAngle + offset;
 
             Vector2 finalDir = new((float)Math.Cos(angle), (float)Math.Sin(angle));
             if (finalDir != Vector2.Zero)
@@ -52,10 +52,10 @@ namespace POCHAOSLYPSE
             var proj = new Projectile(
                 position: muzzle,
                 velocity: finalDir * BulletSpeed,
-                damage:   DamagePerBullet,
+                damage: DamagePerBullet,
                 lifetime: BulletLifetime,
-                color:    Color.LightGray,
-                radius:   3f
+                color: Color.LightGray,
+                radius: 10f
             );
 
             projectiles.Add(proj);

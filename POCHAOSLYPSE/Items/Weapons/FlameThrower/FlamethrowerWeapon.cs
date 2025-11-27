@@ -10,12 +10,12 @@ namespace POCHAOSLYPSE
         private static readonly Random rng = new();
 
         // Config de partículas
-        private const int   ParticlesPerShot  = 18;       // cuántas partículas por "tick" de fuego
-        private const float FlameSpeedMin     = 200f;
-        private const float FlameSpeedMax     = 1000f;
-        private const float FlameLifetime     = 1.8f;    // en segundos
-        private const float FlameRadius       = 8f;
-        private const float FlameDamagePerSec = 150f;      // daño por segundo por partícula
+        private const int ParticlesPerShot = 18;       // cuántas partículas por "tick" de fuego
+        private const float FlameSpeedMin = 200f;
+        private const float FlameSpeedMax = 1000f;
+        private const float FlameLifetime = 1.8f;    // en segundos
+        private const float FlameRadius = 8f;
+        private const float FlameDamagePerSec = 60f;      // daño por segundo por partícula
 
         // Spread (cono de fuego)
         private static readonly float SpreadAngle = MathHelper.ToRadians(40f); // bastante abierto
@@ -26,7 +26,7 @@ namespace POCHAOSLYPSE
         {
             // Shake suave pero constante mientras disparás
             ShakeMagnitude = 4f;
-            ShakeDuration  = 0.03f;
+            ShakeDuration = 0.03f;
         }
 
         // 🔹 No usamos el sistema estándar de proyectiles
@@ -56,7 +56,7 @@ namespace POCHAOSLYPSE
 
                 // Offset aleatorio dentro del cono
                 float offset = ((float)rng.NextDouble() - 0.5f) * SpreadAngle;
-                float angle  = baseAngle + offset;
+                float angle = baseAngle + offset;
 
                 // Dirección final
                 Vector2 flameDir = new((float)Math.Cos(angle), (float)Math.Sin(angle));
@@ -70,8 +70,8 @@ namespace POCHAOSLYPSE
                     position: origin,
                     velocity: flameDir * speed,
                     lifetime: FlameLifetime,
-                    radius:   FlameRadius,
-                    dps:      FlameDamagePerSec
+                    radius: FlameRadius,
+                    dps: FlameDamagePerSec
                 );
 
                 flames.Add(flame);

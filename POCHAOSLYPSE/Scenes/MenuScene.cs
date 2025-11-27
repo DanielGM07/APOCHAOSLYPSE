@@ -12,12 +12,15 @@ namespace POCHAOSLYPSE
         private Rectangle btnLevel1;
         private Rectangle btnLevel2;
         private Rectangle btnLevel3;
+        private Rectangle btnLevel4;
+
         private Rectangle btnExit;
 
         private Color colLevel1 = Color.White;
         private Color colLevel2 = Color.White;
         private Color colLevel3 = Color.White;
-        private Color colExit   = Color.White;
+        private Color colLevel4 = Color.White;
+        private Color colExit = Color.White;
 
         // ✅ para detectar click solo una vez
         private MouseState prevMouse;
@@ -36,9 +39,10 @@ namespace POCHAOSLYPSE
 
             // Botones (mantengo Level1, Level2 y Exit igual, y agrego Level3 más abajo)
             btnLevel1 = new Rectangle(w / 2 - 150, h / 2 - 110, 300, 60);
-            btnLevel2 = new Rectangle(w / 2 - 150, h / 2 - 20,  300, 60);
+            btnLevel2 = new Rectangle(w / 2 - 150, h / 2 - 20, 300, 60);
             btnLevel3 = new Rectangle(w / 2 - 150, h / 2 + 70, 300, 60);
-            btnExit   = new Rectangle(w / 2 - 150, h / 2 + 160,  300, 60);
+            btnLevel4 = new Rectangle(w / 2 - 150, h / 2 + 160, 300, 60);
+            btnExit = new Rectangle(w / 2 - 150, h / 2 + 250, 300, 60);
 
             // 🔹 Nuevo botón Level 3, un poco más abajo
 
@@ -46,22 +50,23 @@ namespace POCHAOSLYPSE
             prevMouse = Mouse.GetState();
         }
 
-        public void UnloadContent() {}
+        public void UnloadContent() { }
 
         public void Update(GameTime gameTime)
         {
             var mouse = Mouse.GetState();
             Point m = mouse.Position;
 
-            bool leftDown       = mouse.LeftButton == ButtonState.Pressed;
-            bool leftWasDown    = prevMouse.LeftButton == ButtonState.Pressed;
+            bool leftDown = mouse.LeftButton == ButtonState.Pressed;
+            bool leftWasDown = prevMouse.LeftButton == ButtonState.Pressed;
             bool leftJustPressed = leftDown && !leftWasDown;
 
             // Hover
             colLevel1 = btnLevel1.Contains(m) ? Color.Yellow : Color.White;
             colLevel2 = btnLevel2.Contains(m) ? Color.Yellow : Color.White;
             colLevel3 = btnLevel3.Contains(m) ? Color.Yellow : Color.White;
-            colExit   = btnExit.Contains(m)   ? Color.Yellow : Color.White;
+            colLevel4 = btnLevel4.Contains(m) ? Color.Yellow : Color.White;
+            colExit = btnExit.Contains(m) ? Color.Yellow : Color.White;
 
             // ✅ Click sólo en el frame donde se PRESIONA, no mientras se mantiene
             if (leftJustPressed)
@@ -86,6 +91,14 @@ namespace POCHAOSLYPSE
                 {
                     Game1.SceneManager.AddScene(new PlayScene(
                         "tiled/level3.csv",
+                        "Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Tilesets/library/tileset_library.png"
+                    ));
+                    Game1.SceneManager.getScene().LoadContent();
+                }
+                else if (btnLevel4.Contains(m))
+                {
+                    Game1.SceneManager.AddScene(new PlayScene(
+                        "tiled/level4.csv",
                         "Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Tilesets/library/tileset_library.png"
                     ));
                     Game1.SceneManager.getScene().LoadContent();
@@ -124,6 +137,11 @@ namespace POCHAOSLYPSE
             spriteBatch.Draw(pixel, btnLevel3, colLevel3 * 0.4f);
             spriteBatch.DrawString(font, "LEVEL 3",
                 new Vector2(btnLevel3.X + 70, btnLevel3.Y + 15), colLevel3);
+
+            // Botón Level 3
+            spriteBatch.Draw(pixel, btnLevel4, colLevel4 * 0.4f);
+            spriteBatch.DrawString(font, "LEVEL 4",
+                new Vector2(btnLevel4.X + 70, btnLevel4.Y + 15), colLevel4);
 
             // Botón Exit
             spriteBatch.Draw(pixel, btnExit, colExit * 0.4f);
