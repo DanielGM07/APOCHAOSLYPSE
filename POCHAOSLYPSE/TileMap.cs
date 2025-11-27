@@ -1,24 +1,24 @@
-using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 namespace POCHAOSLYPSE;
 public class TileMap
 {
-    public Dictionary<Point, Block> blocks {get;} = new(); //TODO: add Block claas
+    public Dictionary<Point, Block> blocks {get;} = new();
     public bool isCollidable {get;}
     public bool canDraw {get;}
     private int scaleTexture = 16;
     private int tileTexture = 16;
-    private int numberOfTilesPerRow = 16;
+    private int numberOfTilesPerRow = 13;
+
+
     public TileMap(bool isCollidable, bool canDraw)
     {
         this.isCollidable = isCollidable;
         this.canDraw = canDraw;
     }
+
     public void GetBlocks(string filePathj)
     {
         string filePath = ContentLoader.GetExecutingDir(filePathj);
@@ -35,8 +35,8 @@ public class TileMap
                     if(block < 0) continue;
                     Point point = new(x,y);
                     blocks[point] = new Collisionblock(
-                        GetDestRect(point, x),
-                        GetSrcRect(x)
+                        GetDestRect(point),
+                        GetSrcRect(block)
                     );
                 }
             }
@@ -50,7 +50,6 @@ public class TileMap
             (block % numberOfTilesPerRow) * tileTexture,
             (block / numberOfTilesPerRow) * tileTexture
         );
-        Console.WriteLine($"point: {point} / {numberOfTilesPerRow}");
 
         return new(
             point,
@@ -58,7 +57,7 @@ public class TileMap
         );
     }
 
-    private Rectangle GetDestRect(Point point, int block)
+    private Rectangle GetDestRect(Point point)
     {
         return new(
             point.X * scaleTexture,
@@ -69,16 +68,16 @@ public class TileMap
     }
     public void CheckCollisionHorizontal(Sprite entity)
     {
-        // TODO: make the collision check here
+        
     }
     public void CheckCollisionVertical(Sprite entity)
     {
-        // TODO: make the collision check here
     }
     public void Draw(Texture2D texture, GameTime gameTime, SpriteBatch spriteBatch)
     {
         foreach(var block in blocks.Values)
         {
+          //Console.WriteLine($"srcRect: {block.srcRectangle} / destRect: {block.collider}");
             spriteBatch.Draw(texture, block.collider, block.srcRectangle, Color.White);
         }
     }
