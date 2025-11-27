@@ -30,12 +30,11 @@ namespace POCHAOSLYPSE
                 rocketDir.Normalize();
 
             var rocket = new Projectile(
-                position: muzzle,
+                new(muzzle.ToPoint(), new(5)),
                 velocity: rocketDir * RocketSpeed,
                 damage:   RocketDamage,
                 lifetime: RocketLifetime,
                 color:    Color.LightGreen,
-                radius:   5f,
                 isExplosive: true,
                 explosionRadius: ExplosionRadius   // 80f en tu clase
             );

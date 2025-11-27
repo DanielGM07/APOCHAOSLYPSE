@@ -42,6 +42,10 @@ namespace POCHAOSLYPSE
 
         public void Update(GameTime gameTime)
         {
+          if(Keyboard.GetState().IsKeyDown(Keys.Escape))
+          {
+            Game1.SceneManager.RemoveScene();
+          }
             var mouse = Mouse.GetState();
             Point m = mouse.Position;
 
@@ -61,8 +65,8 @@ namespace POCHAOSLYPSE
                 }
                 else if (btnMenu.Contains(m))
                 {
-                    Game1.SceneManager.RemoveScene(); // salir del pause
-                    Game1.SceneManager.RemoveScene(); // salir del level
+                    Game1.SceneManager.RemoveScene();
+                    Game1.SceneManager.RemoveScene();
                     Game1.SceneManager.AddScene(new MenuScene());
                     Game1.SceneManager.getScene().LoadContent();
                 }
@@ -76,21 +80,26 @@ namespace POCHAOSLYPSE
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        { }
+        public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(pixel, new Rectangle(0, 0,
-                Camera.Instance.Viewport.Width,
-                Camera.Instance.Viewport.Height),
-                Color.Black * 0.5f);
-
+            Globals.color = Color.Black;
             spriteBatch.Draw(pixel, btnResume, colResume * 0.4f);
             spriteBatch.Draw(pixel, btnMenu,   colMenu   * 0.4f);
             spriteBatch.Draw(pixel, btnExit,   colExit   * 0.4f);
 
-            spriteBatch.DrawString(font, "RESUME",
-                new Vector2(btnResume.X + 80, btnResume.Y + 15), colResume);
+            spriteBatch.DrawString(
+                font,
+                "RESUME",
+                new Vector2(btnResume.X + 80, btnResume.Y + 15),
+                colResume
+            );
 
-            spriteBatch.DrawString(font, "MAIN MENU",
-                new Vector2(btnMenu.X + 60, btnMenu.Y + 15), colMenu);
+            spriteBatch.DrawString(font,
+                "MAIN MENU",
+                new Vector2(btnMenu.X + 60, btnMenu.Y + 15),
+                colMenu
+            );
 
             spriteBatch.DrawString(font, "EXIT",
                 new Vector2(btnExit.X + 110, btnExit.Y + 15), colExit);

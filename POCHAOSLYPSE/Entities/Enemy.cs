@@ -212,12 +212,11 @@ namespace POCHAOSLYPSE
                 float lifetime = 3.0f;
 
                 var proj = new Projectile(
-                    position: this.Center,
+                    new(destinationRectangle.Center, new(10)),
                     velocity: dir * speed,
                     damage:   dmg,
                     lifetime: lifetime,
-                    color:    Color.DarkRed,
-                    radius:   10f
+                    color:    Color.DarkRed
                 );
 
                 enemyProjectiles.Add(proj);
@@ -266,12 +265,11 @@ namespace POCHAOSLYPSE
                 float lifetime = 2.0f;
 
                 var proj = new Projectile(
-                    position: this.Center,
+                    new(destinationRectangle.Center, new(5)),
                     velocity: dir * speed,
                     damage:   dmg,
                     lifetime: lifetime,
-                    color:    Color.OrangeRed,
-                    radius:   5f
+                    color:    Color.OrangeRed
                 );
 
                 enemyProjectiles.Add(proj);
@@ -325,12 +323,11 @@ namespace POCHAOSLYPSE
                 float lifetime = 2.0f;
 
                 var proj = new Projectile(
-                    position: this.Center,
+                    new(destinationRectangle.Center, new(4)),
                     velocity: dir * speed,
                     damage:   dmg,
                     lifetime: lifetime,
-                    color:    Color.Cyan,
-                    radius:   4f
+                    color:    Color.Cyan
                 );
 
                 enemyProjectiles.Add(proj);

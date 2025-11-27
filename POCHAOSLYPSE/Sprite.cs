@@ -33,9 +33,6 @@ namespace POCHAOSLYPSE
             this.color = color;
         }
 
-        /// <summary>
-        /// Centro del rectángulo destino en coordenadas de mundo.
-        /// </summary>
         public Vector2 Center
         {
             get => destinationRectangle.Center.ToVector2();

@@ -5,11 +5,10 @@ namespace POCHAOSLYPSE
 {
     public class Projectile //TODO: make this a Sprite child
     {
-        public Vector2 Position;
+        public Rectangle recPosition;
         public Vector2 Velocity;
         public float Damage;
         public float Lifetime;
-        public float Radius;
         public Color Color;
         public bool IsAlive => Lifetime > 0f;
 
@@ -17,17 +16,19 @@ namespace POCHAOSLYPSE
         public bool IsExplosive;
         public float ExplosionRadius;
 
-        public Projectile(Vector2 position, Vector2 velocity,
-                          float damage, float lifetime,
-                          Color color, float radius,
-                          bool isExplosive = false, float explosionRadius = 0f)
+        public Projectile(Rectangle position,
+                          Vector2 velocity,
+                          float damage,
+                          float lifetime,
+                          Color color,
+                          bool isExplosive = false,
+                          float explosionRadius = 0f)
         {
-            Position        = position;
+            recPosition = position;
             Velocity        = velocity;
             Damage          = damage;
             Lifetime        = lifetime;
             Color           = color;
-            Radius          = radius;
             IsExplosive     = isExplosive;
             ExplosionRadius = explosionRadius;
         }
@@ -35,20 +36,14 @@ namespace POCHAOSLYPSE
         public void Update(GameTime gameTime)
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Position += Velocity * dt;
+            recPosition.X += (int)(Velocity.X * dt);
+            recPosition.Y += (int)(Velocity.Y * dt);
             Lifetime -= dt;
         }
 
         public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
         {
-            var rect = new Rectangle(
-                (int)(Position.X - Radius),
-                (int)(Position.Y - Radius),
-                (int)(Radius * 2f),
-                (int)(Radius * 2f)
-            );
-
-            spriteBatch.Draw(pixel, rect, Color);
+          spriteBatch.Draw(pixel, recPosition, Color);
         }
     }
 }

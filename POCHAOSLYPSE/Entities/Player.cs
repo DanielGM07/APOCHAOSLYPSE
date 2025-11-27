@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -272,7 +273,66 @@ namespace POCHAOSLYPSE
             knockbackX = MathHelper.Lerp(knockbackX, 0f, 5f * dt);
 
             prevState = ks;
+            FollowPlayer(gameTime, this);
             base.Update(gameTime);
+        }
+
+        //this is what classes are for bitch
+        private void FollowPlayer(GameTime gameTime, Player player)
+        {
+            Random rng = new();
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            // Update del shake
+            if (Camera.Instance.shakeTimer > 0f)
+            {
+                Camera.Instance.shakeTimer -= dt;
+                float t = Math.Max(Camera.Instance.shakeTimer / Camera.Instance.shakeDuration, 0f);
+                float currentMag = Camera.Instance.shakeMagnitude * t;
+
+                float dx = (float)(rng.NextDouble() * 2 - 1);
+                float dy = (float)(rng.NextDouble() * 2 - 1);
+                Vector2 dir = new(dx, dy);
+                if (dir != Vector2.Zero)
+                    dir.Normalize();
+                Camera.Instance.shakeOffset = dir * currentMag;
+                Camera.Instance.X +=0.1f;
+            }
+            else
+            {
+                if (Camera.Instance.shakeOffset != Vector2.Zero)
+                {
+                    Camera.Instance.shakeOffset = Vector2.Zero;
+                    Camera.Instance.X +=0.1f;
+                }
+            }
+
+            var bounds       = player.BoundingBox;
+            var playerCenter = new Vector2(bounds.Center.X, bounds.Center.Y);
+
+            var lookAhead = player.FacingLeft ? -200f : 200f;
+
+            if (Math.Abs(player.Velocity.X) > 20f)
+            {
+                lookAhead = player.FacingLeft ? -600f : 600f;
+            }
+
+            var desiredFocus = new Vector2(playerCenter.X + lookAhead, playerCenter.Y);
+
+            if (!Camera.Instance.followInitialized)
+            {
+                Camera.Instance.followHorizontal  = desiredFocus.X;
+                Camera.Instance.followVertical    = desiredFocus.Y;
+                Camera.Instance.followInitialized = true;
+            }
+
+            var lerpEase = 0.5f * dt * 60f;
+            Camera.Instance.followHorizontal = MathHelper.Lerp(
+                Camera.Instance.followHorizontal, desiredFocus.X, lerpEase);
+            Camera.Instance.followVertical   = MathHelper.Lerp(Camera.Instance.followVertical, desiredFocus.Y, lerpEase);
+
+            var desiredPosition = new Vector2(Camera.Instance.followHorizontal, Camera.Instance.followVertical);
+            Camera.Instance.Position = Vector2.Lerp(Camera.Instance.Position, desiredPosition, 0.05f * dt * 60f);
         }
     }
 }

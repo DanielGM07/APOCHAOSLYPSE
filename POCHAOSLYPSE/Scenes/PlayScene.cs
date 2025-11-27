@@ -26,13 +26,15 @@ namespace POCHAOSLYPSE
         private Weapon gatlingGun;
         private GrapplingHookWeapon grapplingHook;
         private FlamethrowerWeapon flamethrower;
+        private GrapplingHookWeapon grapplingHook;
+        private FlamethrowerWeapon flamethrower;
 
         private Weapon currentWeapon;
 
         private readonly List<Projectile> projectiles = new();
         private readonly List<Projectile> enemyProjectiles = new();
         private readonly List<Explosion> explosions = new();
-        private readonly List<FlameParticle> flames = new();
+        private readonly List<FlameParticle> flames  = new();
 
         private readonly List<Enemy> enemies = new();
 
@@ -48,6 +50,7 @@ namespace POCHAOSLYPSE
 
         public void LoadContent()
         {
+          Globals.color = new Color(200, 200, 200);
             var loader = ContentLoader.Instance;
             var graphicsDevice = loader.graphics.GraphicsDevice;
 
@@ -62,10 +65,14 @@ namespace POCHAOSLYPSE
 
             tilesetTexture = loader.LoadImage(tilesetPath);
 
+            // Player
             var playerRect = new Rectangle(160, 160, 32, 32);
 
-            player = new Player(pixel, pixelRectangle, playerRect, Color.White);
-            player.color = Color.Black;
+            player = new Player(pixel,
+                pixelRectangle,
+                new Rectangle(160, 160, 32, 32),
+                Color.White);
+            player.color   = Color.Black;
             player.TileMap = tileMap;
 
             ak47 = new AK47(pixel, pixelRectangle, new Rectangle(0, 0, 50, 10), Color.Yellow);
@@ -141,7 +148,11 @@ namespace POCHAOSLYPSE
 
         public void Update(GameTime gameTime)
         {
-            var mouse = Mouse.GetState();
+          if(Keyboard.GetState().IsKeyDown(Keys.Escape))
+          {
+              Game1.SceneManager.AddScene(new PauseScene());
+          }
+            var mouse    = Mouse.GetState();
             var keyboard = Keyboard.GetState();
 
             bool leftDown = mouse.LeftButton == ButtonState.Pressed;
@@ -149,6 +160,8 @@ namespace POCHAOSLYPSE
             bool leftJustPressed = leftDown && !leftWasDown;
             bool leftJustReleased = !leftDown && leftWasDown;
 
+            // Probably should be a component or method of
+            // Camera instead of hardcoding it here
             if (keyboard.IsKeyDown(Keys.Q))
                 Camera.Instance.SetTargetZoom(Camera.Instance.Zoom + 0.05f);
             if (keyboard.IsKeyDown(Keys.E))
@@ -159,12 +172,14 @@ namespace POCHAOSLYPSE
             if (!player.isAlive)
             {
                 Game1.SceneManager.RemoveScene();
+                UnloadContent();
                 return;
             }
 
             HandlePlayerSlamAoE(player, enemies);
 
             Vector2 mouseWorld = Camera.Instance.ScreenToCamera(mouse.Position.ToVector2());
+            Vector2 aimDir = mouseWorld - player.Center;
             Vector2 aimDir = mouseWorld - player.Center;
             if (aimDir != Vector2.Zero)
                 aimDir.Normalize();
@@ -179,6 +194,7 @@ namespace POCHAOSLYPSE
             if (keyboard.IsKeyDown(Keys.D6)) currentWeapon = grapplingHook;
             if (keyboard.IsKeyDown(Keys.D7)) currentWeapon = flamethrower;
 
+            // Peso de armas // should be inside every weapon and then get it here
             float baseMoveSpeed = 250f;
 
             if (currentWeapon == gatlingGun)
@@ -238,12 +254,12 @@ namespace POCHAOSLYPSE
 
             foreach (var enemy in enemies)
             {
-                if (!enemy.isAlive) continue;
                 enemy.UpdateAI(gameTime, player, tileMap, enemyProjectiles);
             }
-
-            for (int i = 0; i < enemyProjectiles.Count; i++)
-                enemyProjectiles[i].Update(gameTime);
+            foreach(var enemyProjectile in enemyProjectiles)
+            {
+              enemyProjectile.Update(gameTime);
+            }
             enemyProjectiles.RemoveAll(p => !p.IsAlive);
 
             foreach (var e in explosions)
@@ -272,18 +288,11 @@ namespace POCHAOSLYPSE
             {
                 if (!bullet.IsAlive) continue;
 
-                Rectangle projRect = new(
-                    (int)(bullet.Position.X - bullet.Radius),
-                    (int)(bullet.Position.Y - bullet.Radius),
-                    (int)(bullet.Radius * 2f),
-                    (int)(bullet.Radius * 2f)
-                );
-
                 foreach (var enemy in enemies)
                 {
                     if (!enemy.isAlive) continue;
 
-                    if (projRect.Intersects(enemy.destinationRectangle))
+                    if (bullet.recPosition.Intersects(enemy.destinationRectangle))
                     {
                         enemy.Health -= (int)bullet.Damage;
                         bullet.Lifetime = 0f;
@@ -303,16 +312,9 @@ namespace POCHAOSLYPSE
         {
             foreach (var bullet in bullets)
             {
-                if (!bullet.IsAlive) continue;
+                if (!bullet.IsAlive) continue; // unnesesary
 
-                Rectangle projRect = new(
-                    (int)(bullet.Position.X - bullet.Radius),
-                    (int)(bullet.Position.Y - bullet.Radius),
-                    (int)(bullet.Radius * 2f),
-                    (int)(bullet.Radius * 2f)
-                );
-
-                if (projRect.Intersects(player.destinationRectangle))
+                if (bullet.recPosition.Intersects(player.destinationRectangle))
                 {
                     player.Health -= (int)bullet.Damage;
                     bullet.Lifetime = 0f;
@@ -478,6 +480,19 @@ namespace POCHAOSLYPSE
                 new Vector2(25, 140 - 25),
                 Color.White
             );
+
+        }
+        public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            if (hudFont != null && currentWeapon != null)
+            {
+                spriteBatch.DrawString(
+                    hudFont,
+                    $"Arma actual: {currentWeapon.GetType().Name} (MOVE SPD: {player.MoveSpeed:0}) HP:{player.Health}",
+                    new Vector2(10, 10),
+                    Color.White
+                );
+            }
         }
     }
 }

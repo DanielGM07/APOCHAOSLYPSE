@@ -1,16 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace POCHAOSLYPSE
 {
+  public static class Globals
+  {
+    public static Color color = Color.Gray;
+  }
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        public static SceneManager SceneManager;
+        public static SceneManager SceneManager; // jraphics should also be using this trick
         public static bool ExitGameRequested = false;
-        private KeyboardState _prevKeyboard;
 
         public Game1()
         {
@@ -48,64 +50,28 @@ namespace POCHAOSLYPSE
         protected override void Update(GameTime gameTime)
         {
             if (ExitGameRequested)
-            {
-                Exit();
-                return;
-            }
-
-            var kb = Keyboard.GetState();
-            bool escJustPressed = kb.IsKeyDown(Keys.Escape) && !_prevKeyboard.IsKeyDown(Keys.Escape);
-
-            if (escJustPressed)
-            {
-                var current = SceneManager.getScene();
-
-                if (current is PlayScene)
-                {
-                    SceneManager.AddScene(new PauseScene());
-                    SceneManager.getScene().LoadContent();
-                }
-                else if (current is PauseScene)
-                {
-                    SceneManager.RemoveScene();
-                }
-            }
+            { Exit(); }
 
             SceneManager.getScene().Update(gameTime);
-
-            _prevKeyboard = kb;
-
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
+
             var current = SceneManager.getScene();
 
-            if (current is PlayScene)
-                GraphicsDevice.Clear(new Color(200, 200, 200));
-            else
-                GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Globals.color);
 
-            // --------------------
-            // DIBUJO DEL MUNDO
-            // --------------------
-            if (current is MenuScene || current is PauseScene)
-            {
-                _spriteBatch.Begin(
-                    samplerState: SamplerState.PointClamp
-                );
-            }
-            else
-            {
-                _spriteBatch.Begin(
-                    samplerState: SamplerState.PointWrap,
-                    transformMatrix: Camera.Instance.Matrix
-                );
-            }
-
+            _spriteBatch.Begin(
+                samplerState: SamplerState.PointWrap,
+                transformMatrix: Camera.Instance.Matrix
+            );
             current.Draw(gameTime, _spriteBatch);
+            _spriteBatch.End();
 
+            _spriteBatch.Begin(samplerState: SamplerState.PointWrap);
+            SceneManager.getScene().DrawUI(gameTime, _spriteBatch);
             _spriteBatch.End();
 
             // --------------------

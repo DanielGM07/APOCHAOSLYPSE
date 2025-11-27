@@ -50,12 +50,11 @@ namespace POCHAOSLYPSE
 
             // Crear proyectil (no explosivo)
             var proj = new Projectile(
-                position: muzzle,
+                new(muzzle.ToPoint(), new(3)),
                 velocity: finalDir * BulletSpeed,
                 damage:   DamagePerBullet,
                 lifetime: BulletLifetime,
-                color:    Color.LightGray,
-                radius:   3f
+                color:    Color.LightGray
             );
 
             projectiles.Add(proj);

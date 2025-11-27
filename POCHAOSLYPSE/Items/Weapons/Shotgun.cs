@@ -30,42 +30,25 @@ namespace POCHAOSLYPSE
             float startAngle = baseAngle - ConeAngle / 2f;
             float endAngle   = baseAngle + ConeAngle / 2f;
 
-            if (PelletCount <= 1)
-            {
-                Vector2 d = Vector2.Normalize(dir);
-                var single = new Projectile(
-                    muzzle,
-                    d * BulletSpeed,
-                    DamagePerPellet,
-                    BulletLifetime,
-                    Color.OrangeRed,
-                    3f
-                );
-                projectiles.Add(single);
-            }
-            else
-            {
-                for (int i = 0; i < PelletCount; i++)
-                {
-                    float t     = i / (float)(PelletCount - 1);
-                    float angle = MathHelper.Lerp(startAngle, endAngle, t);
+              for (int i = 0; i < PelletCount; i++)
+              {
+                  float t     = i / (float)(PelletCount - 1);
+                  float angle = MathHelper.Lerp(startAngle, endAngle, t);
 
-                    Vector2 pelletDir = new((float)Math.Cos(angle), (float)Math.Sin(angle));
-                    if (pelletDir != Vector2.Zero)
-                        pelletDir.Normalize();
+                  Vector2 pelletDir = new((float)Math.Cos(angle), (float)Math.Sin(angle));
+                  if (pelletDir != Vector2.Zero)
+                      pelletDir.Normalize();
 
-                    var proj = new Projectile(
-                        position: muzzle,
-                        velocity: pelletDir * BulletSpeed,
-                        damage:   DamagePerPellet,
-                        lifetime: BulletLifetime,
-                        color:    Color.OrangeRed,
-                        radius:   3f
-                    );
+                  var proj = new Projectile(
+                      new(muzzle.ToPoint(), new(3)),
+                      velocity: pelletDir * BulletSpeed,
+                      damage:   DamagePerPellet,
+                      lifetime: BulletLifetime,
+                      color:    Color.OrangeRed
+                  );
 
-                    projectiles.Add(proj);
-                }
-            }
+                  projectiles.Add(proj);
+              }
 
             // 🔹 Knockback 2D fuerte
             if (Knockback > 0f && dir != Vector2.Zero)

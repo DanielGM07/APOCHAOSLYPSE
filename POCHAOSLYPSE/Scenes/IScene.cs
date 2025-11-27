@@ -9,5 +9,6 @@ namespace POCHAOSLYPSE
      public void UnloadContent();
      public void Update(GameTime gameTime);
      public void Draw(GameTime gameTime, SpriteBatch spriteBatch);
+     public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch);
    }
 }

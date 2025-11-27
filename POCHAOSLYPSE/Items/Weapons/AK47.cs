@@ -37,12 +37,11 @@ namespace POCHAOSLYPSE
                 finalDir.Normalize();
 
             var proj = new Projectile(
-                position: muzzle,
+                new(muzzle.ToPoint(), new(3)),
                 velocity: finalDir * BulletSpeed,
                 damage:   DamagePerBullet,
                 lifetime: BulletLifetime,
-                color:    Color.Yellow,
-                radius:   3f
+                color:    Color.Yellow
             );
 
             projectiles.Add(proj);

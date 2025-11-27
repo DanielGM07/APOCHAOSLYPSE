@@ -98,11 +98,9 @@ namespace POCHAOSLYPSE
                             block = new DecoBlock(dest, src);
                             break;
                     }
-
                     if (block != null)
                         blocks.Add(block);
                 }
-
                 y++;
             }
         }
@@ -174,21 +172,14 @@ namespace POCHAOSLYPSE
                 if (!p.IsAlive)
                     continue;
 
-                Rectangle projRect = new Rectangle(
-                    (int)(p.Position.X - p.Radius),
-                    (int)(p.Position.Y - p.Radius),
-                    (int)(p.Radius * 2),
-                    (int)(p.Radius * 2)
-                );
-
                 foreach (var block in blocks)
                 {
-                    if (block.collider.Intersects(projRect))
+                    if (block.collider.Intersects(p.recPosition))
                     {
                         if (p.IsExplosive && explosions != null)
                         {
                             explosions.Add(new Explosion(
-                                p.Position,
+                                p.recPosition.Location.ToVector2(),
                                 p.ExplosionRadius,
                                 0.18f,
                                 Color.Red
@@ -196,7 +187,6 @@ namespace POCHAOSLYPSE
 
                             Camera.Instance.Shake(20f, 0.2f);
                         }
-
                         p.Lifetime = 0f;
                         break;
                     }

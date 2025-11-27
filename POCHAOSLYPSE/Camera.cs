@@ -70,16 +70,15 @@ namespace POCHAOSLYPSE
         public Viewport Viewport;
 
         // 🔹 Seguimiento al jugador
-        private float followHorizontal;
-        private float followVertical;
-        private bool  followInitialized;
+        public float followHorizontal;
+        public float followVertical;
+        public bool  followInitialized;
 
         // 🔹 Shake
-        private float   shakeDuration;
-        private float   shakeTimer;
-        private float   shakeMagnitude;
-        private Vector2 shakeOffset;
-        private static readonly Random rng = new();
+        public float   shakeDuration;
+        public float   shakeTimer;
+        public float   shakeMagnitude;
+        public Vector2 shakeOffset;
 
         // 🔹 Zoom suave
         private float targetZoom = 1f;
@@ -336,64 +335,6 @@ namespace POCHAOSLYPSE
             Zoom = MathHelper.Lerp(Zoom, targetZoom, zoomSpeed * dt);
         }
 
-        // 🔹 Seguir al player con look-ahead y shake
-        public void FollowPlayer(GameTime gameTime, Player player)
-        {
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            // Update del shake
-            if (shakeTimer > 0f)
-            {
-                shakeTimer -= dt;
-                float t = Math.Max(shakeTimer / shakeDuration, 0f);
-                float currentMag = shakeMagnitude * t;
-
-                float dx = (float)(rng.NextDouble() * 2 - 1);
-                float dy = (float)(rng.NextDouble() * 2 - 1);
-                Vector2 dir = new(dx, dy);
-                if (dir != Vector2.Zero)
-                    dir.Normalize();
-                shakeOffset = dir * currentMag;
-
-                changed = true;
-            }
-            else
-            {
-                if (shakeOffset != Vector2.Zero)
-                {
-                    shakeOffset = Vector2.Zero;
-                    changed     = true;
-                }
-            }
-
-            var bounds       = player.BoundingBox;
-            var playerCenter = new Vector2(bounds.Center.X, bounds.Center.Y);
-
-            var lookAhead = player.FacingLeft ? -200f : 200f;
-
-            if (Math.Abs(player.Velocity.X) > 20f)
-            {
-                lookAhead = player.FacingLeft ? -600f : 600f;
-            }
-
-            var desiredFocus = new Vector2(playerCenter.X + lookAhead, playerCenter.Y);
-
-            if (!followInitialized)
-            {
-                followHorizontal  = desiredFocus.X;
-                followVertical    = desiredFocus.Y;
-                followInitialized = true;
-            }
-
-            var lerpEase = 0.5f * dt * 60f;
-            followHorizontal = MathHelper.Lerp(followHorizontal, desiredFocus.X, lerpEase);
-            followVertical   = MathHelper.Lerp(followVertical, desiredFocus.Y, lerpEase);
-
-            var desiredPosition = new Vector2(followHorizontal, followVertical);
-            Position = Vector2.Lerp(Position, desiredPosition, 0.05f * dt * 60f);
-        }
-
-        // 🔹 Iniciar un shake
         public void Shake(float magnitude, float duration)
         {
             if (magnitude <= 0 || duration <= 0) return;

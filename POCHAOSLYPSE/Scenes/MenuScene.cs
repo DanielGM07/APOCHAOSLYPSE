@@ -22,6 +22,7 @@ namespace POCHAOSLYPSE
 
         public void LoadContent()
         {
+          Globals.color = Color.Black;
             var loader = ContentLoader.Instance;
             font = loader.font;
 
@@ -111,7 +112,6 @@ namespace POCHAOSLYPSE
             spriteBatch.DrawString(font, "EXIT",
                 new Vector2(btnExit.X + 110, btnExit.Y + 15), colExit);
 
-            // Título
             spriteBatch.DrawString(font, "APOCHAOSLYPSE",
                 new Vector2(40, 40), Color.White);
         }
