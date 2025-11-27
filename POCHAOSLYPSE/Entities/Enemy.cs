@@ -9,22 +9,22 @@ namespace POCHAOSLYPSE
     {
         private static readonly Random rng = new();
 
-        public TileMap   TileMap   { get; set; }
-        public EnemyKind Kind      { get; }
-        public float     DetectionRadius { get; private set; }
+        public TileMap TileMap { get; set; }
+        public EnemyKind Kind { get; }
+        public float DetectionRadius { get; private set; }
 
         // 🔹 NUEVO: vida máxima para poder calcular porcentaje
         public int MaxHealth { get; private set; }
 
         // Físicas simples
         private float MoveSpeed;
-        private float Gravity      = 2000f;
+        private float Gravity = 2000f;
         private float MaxFallSpeed = 1000f;
-        private float JumpSpeed    = -650f;
+        private float JumpSpeed = -1250f;
 
         // Wander
         private float wanderTimer = 0f;
-        private int   wanderDir   = 1;
+        private int wanderDir = 1;
 
         // Ataques
         private float meleeCooldown;
@@ -52,29 +52,29 @@ namespace POCHAOSLYPSE
             switch (Kind)
             {
                 case EnemyKind.Heavy:
-                    MaxHealth      = 300;
-                    Health         = MaxHealth;
-                    MoveSpeed      = 80f;
+                    MaxHealth = 300;
+                    Health = MaxHealth;
+                    MoveSpeed = 80f;
                     DetectionRadius = 350f;
-                    meleeCooldown  = 1.7f;
+                    meleeCooldown = 1.7f;
                     rangedCooldown = 2.8f;
                     break;
 
                 case EnemyKind.Medium:
-                    MaxHealth      = 150;
-                    Health         = MaxHealth;
-                    MoveSpeed      = 220f;
+                    MaxHealth = 150;
+                    Health = MaxHealth;
+                    MoveSpeed = 220f;
                     DetectionRadius = 450f;
-                    meleeCooldown  = 0.7f;
+                    meleeCooldown = 0.7f;
                     rangedCooldown = 1.1f;
                     break;
 
                 case EnemyKind.Light:
-                    MaxHealth      = 40;
-                    Health         = MaxHealth;
-                    MoveSpeed      = 170f;
+                    MaxHealth = 40;
+                    Health = MaxHealth;
+                    MoveSpeed = 170f;
                     DetectionRadius = 600f;
-                    meleeCooldown  = 0.0f;   // no melee real (solo "proximidad")
+                    meleeCooldown = 0.0f;   // no melee real (solo "proximidad")
                     rangedCooldown = 0.6f;
                     break;
             }
@@ -82,7 +82,7 @@ namespace POCHAOSLYPSE
 
         private void UpdateCommonTimers(float dt)
         {
-            if (meleeTimer > 0f)  meleeTimer  -= dt;
+            if (meleeTimer > 0f) meleeTimer -= dt;
             if (rangedTimer > 0f) rangedTimer -= dt;
 
             if (meleeHitboxTimer > 0f)
@@ -133,7 +133,7 @@ namespace POCHAOSLYPSE
             UpdateCommonTimers(dt);
 
             Vector2 toPlayer = player.Center - this.Center;
-            float   dist     = toPlayer.Length();
+            float dist = toPlayer.Length();
 
             bool playerInDetection = dist <= DetectionRadius;
 
@@ -213,17 +213,17 @@ namespace POCHAOSLYPSE
                 Vector2 dir = toPlayer;
                 if (dir != Vector2.Zero) dir.Normalize();
 
-                float speed   = 200f;
-                float dmg     = 25f;
+                float speed = 200f;
+                float dmg = 25f;
                 float lifetime = 3.0f;
 
                 var proj = new Projectile(
                     position: this.Center,
                     velocity: dir * speed,
-                    damage:   dmg,
+                    damage: dmg,
                     lifetime: lifetime,
-                    color:    Color.DarkRed,
-                    radius:   10f
+                    color: Color.DarkRed,
+                    radius: 10f
                 );
 
                 enemyProjectiles.Add(proj);
@@ -267,17 +267,17 @@ namespace POCHAOSLYPSE
                 Vector2 dir = toPlayer;
                 if (dir != Vector2.Zero) dir.Normalize();
 
-                float speed    = 450f;
-                float dmg      = 15f;
+                float speed = 450f;
+                float dmg = 15f;
                 float lifetime = 2.0f;
 
                 var proj = new Projectile(
                     position: this.Center,
                     velocity: dir * speed,
-                    damage:   dmg,
+                    damage: dmg,
                     lifetime: lifetime,
-                    color:    Color.OrangeRed,
-                    radius:   5f
+                    color: Color.OrangeRed,
+                    radius: 5f
                 );
 
                 enemyProjectiles.Add(proj);
@@ -326,17 +326,17 @@ namespace POCHAOSLYPSE
                 Vector2 dir = toPlayer;
                 if (dir != Vector2.Zero) dir.Normalize();
 
-                float speed    = 520f;
-                float dmg      = 32f;
+                float speed = 520f;
+                float dmg = 32f;
                 float lifetime = 2.0f;
 
                 var proj = new Projectile(
                     position: this.Center,
                     velocity: dir * speed,
-                    damage:   dmg,
+                    damage: dmg,
                     lifetime: lifetime,
-                    color:    Color.Cyan,
-                    radius:   4f
+                    color: Color.Cyan,
+                    radius: 4f
                 );
 
                 enemyProjectiles.Add(proj);
@@ -355,9 +355,9 @@ namespace POCHAOSLYPSE
                 destinationRectangle.Height
             );
 
-            MeleeHitbox       = hitbox;
-            meleeHitboxTimer  = displayTime;
-            meleeTimer        = meleeCooldown;
+            MeleeHitbox = hitbox;
+            meleeHitboxTimer = displayTime;
+            meleeTimer = meleeCooldown;
 
             if (hitbox.Intersects(player.destinationRectangle))
             {
