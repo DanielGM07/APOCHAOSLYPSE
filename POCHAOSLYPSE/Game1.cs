@@ -43,8 +43,8 @@ public class Game1 : Game
             pixel,                      // textura 1x1
             new Rectangle(0, 0, 1, 1),  // source 1x1
             new Rectangle(
-                _graphics.PreferredBackBufferWidth / 2 - 50,
-                _graphics.PreferredBackBufferHeight / 2 - 50,
+                50,
+                50,
                 100,
                 100
             )
