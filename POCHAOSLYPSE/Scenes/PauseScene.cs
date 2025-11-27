@@ -40,9 +40,11 @@ namespace POCHAOSLYPSE
 
         public void UnloadContent() {}
 
+        KeyboardState state;
+        public bool returner = false;
         public void Update(GameTime gameTime)
         {
-          if(Keyboard.GetState().IsKeyDown(Keys.Escape))
+          if(Keyboard.GetState().IsKeyDown(Keys.Escape) && returner)
           {
             Game1.SceneManager.RemoveScene();
           }
@@ -77,13 +79,14 @@ namespace POCHAOSLYPSE
             }
 
             prevMouse = mouse;
+            returner = Keyboard.GetState().GetPressedKeyCount() == 0;
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         { }
         public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            Globals.color = Color.Black;
+            Game1.color = Color.Black;
             spriteBatch.Draw(pixel, btnResume, colResume * 0.4f);
             spriteBatch.Draw(pixel, btnMenu,   colMenu   * 0.4f);
             spriteBatch.Draw(pixel, btnExit,   colExit   * 0.4f);

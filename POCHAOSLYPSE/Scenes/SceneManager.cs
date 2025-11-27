@@ -9,7 +9,10 @@ namespace POCHAOSLYPSE
     public SceneManager() { }
 
     public void AddScene(IScene scene)
-    { scenes.Push(scene); }
+    {
+      scene.LoadContent();
+      scenes.Push(scene);
+    }
 
     public void RemoveScene()
     {

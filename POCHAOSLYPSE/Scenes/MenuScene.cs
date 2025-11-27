@@ -22,7 +22,7 @@ namespace POCHAOSLYPSE
 
         public void LoadContent()
         {
-          Globals.color = Color.Black;
+            Game1.color = Color.Black;
             var loader = ContentLoader.Instance;
             font = loader.font;
 
@@ -88,16 +88,12 @@ namespace POCHAOSLYPSE
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        { }
+        {
+          Game1.color = Color.Black;
+        }
         public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
         {
             var loader = ContentLoader.Instance;
-
-            // Fondo
-            spriteBatch.Draw(pixel, new Rectangle(0, 0,
-                loader.graphics.GraphicsDevice.Viewport.Width,
-                loader.graphics.GraphicsDevice.Viewport.Height),
-                Color.Black * 0.6f);
 
             // Botón Level 1
             spriteBatch.Draw(pixel, btnLevel1, colLevel1 * 0.4f);

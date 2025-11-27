@@ -3,13 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace POCHAOSLYPSE
 {
-  public static class Globals
-  {
-    public static Color color = Color.Gray;
-  }
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
+        public static Color color = Color.Gray;
         private SpriteBatch _spriteBatch;
         public static SceneManager SceneManager; // jraphics should also be using this trick
         public static bool ExitGameRequested = false;
@@ -61,7 +58,7 @@ namespace POCHAOSLYPSE
 
             var current = SceneManager.getScene();
 
-            GraphicsDevice.Clear(Globals.color);
+            GraphicsDevice.Clear(color);
 
             _spriteBatch.Begin(
                 samplerState: SamplerState.PointWrap,

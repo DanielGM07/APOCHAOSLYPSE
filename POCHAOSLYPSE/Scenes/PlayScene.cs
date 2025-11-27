@@ -48,7 +48,6 @@ namespace POCHAOSLYPSE
 
         public void LoadContent()
         {
-          Globals.color = new Color(200, 200, 200);
             var loader = ContentLoader.Instance;
             var graphicsDevice = loader.graphics.GraphicsDevice;
 
@@ -144,9 +143,10 @@ namespace POCHAOSLYPSE
             tilesetTexture?.Dispose();
         }
 
+        bool returner = false;
         public void Update(GameTime gameTime)
         {
-          if(Keyboard.GetState().IsKeyDown(Keys.Escape))
+          if(Keyboard.GetState().IsKeyDown(Keys.Escape) && returner)
           {
               Game1.SceneManager.AddScene(new PauseScene());
           }
@@ -276,6 +276,7 @@ namespace POCHAOSLYPSE
             Camera.Instance.UpdateZoom(gameTime);
 
             prevMouse = mouse;
+            returner = Keyboard.GetState().GetPressedKeyCount() == 0;
         }
 
         private void HandlePlayerProjectilesVsEnemies(List<Projectile> bullets, List<Enemy> enemies)
@@ -390,7 +391,7 @@ namespace POCHAOSLYPSE
         // ===========================
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-          Globals.color = Color.Gray;
+            Game1.color = new Color(200, 200, 200);
             tileMap.Draw(tilesetTexture, gameTime, spriteBatch);
 
             if (grapplingHook.CurrentHook != null)
