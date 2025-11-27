@@ -17,6 +17,8 @@ namespace POCHAOSLYPSE
         private Weapon shotgun;
         private Weapon rocketLauncher;
         private Weapon katana;
+        private Weapon gatlingGun;
+        private GrapplingHookWeapon grapplingHook;
 
         private Weapon currentWeapon;
 
@@ -24,6 +26,8 @@ namespace POCHAOSLYPSE
         private readonly List<Explosion>  explosions  = new();
 
         private SpriteFont hudFont;
+
+        private MouseState prevMouse;
 
         public void LoadContent()
         {
@@ -33,7 +37,7 @@ namespace POCHAOSLYPSE
             // Fuente para HUD
             hudFont = loader.font;
 
-            // Pixel 1x1 para player / armas / balas / explosiones
+            // Pixel 1x1 para todo
             pixel = new Texture2D(graphicsDevice, 1, 1);
             pixel.SetData(new[] { Color.White });
             Rectangle pixelRectangle = new(0, 0, 1, 1);
@@ -93,6 +97,20 @@ namespace POCHAOSLYPSE
                 color:    Color.MediumPurple
             );
 
+            gatlingGun = new GatlingGun(
+                texture:  pixel,
+                srcRec:   pixelRectangle,
+                destRect: new Rectangle(0, 0, 70, 14),
+                color:    Color.Silver
+            );
+
+            grapplingHook = new GrapplingHookWeapon(
+                texture:  pixel,
+                srcRec:   pixelRectangle,
+                destRect: new Rectangle(0, 0, 40, 8),
+                color:    Color.Cyan
+            );
+
             // Arma inicial
             currentWeapon = shotgun;
         }
@@ -108,16 +126,21 @@ namespace POCHAOSLYPSE
             var mouse    = Mouse.GetState();
             var keyboard = Keyboard.GetState();
 
+            bool leftDown       = mouse.LeftButton == ButtonState.Pressed;
+            bool leftWasDown    = prevMouse.LeftButton == ButtonState.Pressed;
+            bool leftJustPressed  = leftDown && !leftWasDown;
+            bool leftJustReleased = !leftDown && leftWasDown;
+
             // 🔹 Controles de zoom (Q = zoom in, E = zoom out)
             if (keyboard.IsKeyDown(Keys.Q))
-                Camera.Instance.SetTargetZoom(Camera.Instance.Zoom + 0.1f);
+                Camera.Instance.SetTargetZoom(Camera.Instance.Zoom + 0.05f);
             if (keyboard.IsKeyDown(Keys.E))
-                Camera.Instance.SetTargetZoom(Camera.Instance.Zoom - 0.1f);
+                Camera.Instance.SetTargetZoom(Camera.Instance.Zoom - 0.05f);
 
-            // Player (mov + colisiones)
+            // Player (movimiento + colisiones)
             player.Update(gameTime);
 
-            // Dirección de apuntado
+            // Dirección de apuntado (hacia el mouse en mundo)
             Vector2 mouseWorld = Camera.Instance.ScreenToCamera(mouse.Position.ToVector2());
             Vector2 aimDir     = mouseWorld - player.Center;
             if (aimDir != Vector2.Zero)
@@ -125,47 +148,107 @@ namespace POCHAOSLYPSE
             else
                 aimDir = Vector2.UnitX;
 
-            // Cambio de arma
+            // 🔹 Cambio de arma (D1–D6)
             if (keyboard.IsKeyDown(Keys.D1)) currentWeapon = ak47;
             if (keyboard.IsKeyDown(Keys.D2)) currentWeapon = shotgun;
             if (keyboard.IsKeyDown(Keys.D3)) currentWeapon = rocketLauncher;
             if (keyboard.IsKeyDown(Keys.D4)) currentWeapon = katana;
+            if (keyboard.IsKeyDown(Keys.D5)) currentWeapon = gatlingGun;
+            if (keyboard.IsKeyDown(Keys.D6)) currentWeapon = grapplingHook;
 
-            // Pos arma
+            // 🔹 Peso de armas: modificar MoveSpeed del player
+            float baseMoveSpeed = 250f;
+
+            if (currentWeapon == gatlingGun)
+            {
+                player.MoveSpeed = baseMoveSpeed * 0.6f;
+            }
+            else if (currentWeapon == rocketLauncher)
+            {
+                player.MoveSpeed = baseMoveSpeed * 0.85f;
+            }
+            else if (currentWeapon == grapplingHook)
+            {
+                player.MoveSpeed = baseMoveSpeed * 0.9f; // un poquito más pesada si querés
+            }
+            else
+            {
+                player.MoveSpeed = baseMoveSpeed;
+            }
+
+            // Posición del arma (para todas)
             Vector2 weaponOffset   = aimDir * 30f;
             currentWeapon.Position = player.Center + weaponOffset;
             currentWeapon.Update(gameTime);
 
-            // Disparo
-            if (mouse.LeftButton == ButtonState.Pressed)
+            // 🔹 Lógica de disparo según tipo de arma
+            if (currentWeapon is GrapplingHookWeapon hookWeapon)
             {
-                Vector2 muzzle = player.Center + aimDir * 50f;
-                currentWeapon.Fire(muzzle, aimDir, projectiles, player);
+                // Punto de salida del hook (un poco adelante del arma)
+                Vector2 muzzle = player.Center + aimDir * 40f;
+
+                if (leftJustPressed)
+                {
+                    hookWeapon.StartGrapple(muzzle, aimDir, player);
+                }
+
+                // Actualizar hook (viaje, colisiones, atracción)
+                hookWeapon.UpdateHook(gameTime, tileMap, player, isHoldingButton: leftDown);
+
+                if (leftJustReleased)
+                {
+                    // Soltaste el botón: si no estaba enganchado, desaparece;
+                    // si estaba enganchado, deja al player con el momentum actual.
+                    hookWeapon.Release();
+                }
+            }
+            else
+            {
+                // Armas normales
+                if (leftDown)
+                {
+                    Vector2 muzzle = player.Center + aimDir * 50f;
+                    currentWeapon.Fire(muzzle, aimDir, projectiles, player);
+                }
+
+                // Si cambiamos de arma, nos aseguramos de que el hook no siga activo
+                if (grapplingHook != null && grapplingHook.CurrentHook != null)
+                {
+                    grapplingHook.Release();
+                }
             }
 
-            // Proyectiles
+            // 🔹 Proyectiles normales
             for (int i = 0; i < projectiles.Count; i++)
                 projectiles[i].Update(gameTime);
 
-            // Colisión balas ↔ bloques (mata balas y genera explosiones)
+            // Colisiones bala ↔ bloques (mata balas y genera explosiones de rocket)
             tileMap.HandleProjectileCollisions(projectiles, explosions);
 
             projectiles.RemoveAll(p => !p.IsAlive);
 
-            // Explosiones
+            // Explosiones (rectángulos rojos)
             for (int i = 0; i < explosions.Count; i++)
                 explosions[i].Update(gameTime);
             explosions.RemoveAll(e => !e.IsAlive);
 
-            // Cámara
+            // Cámara: follow + zoom suave
             Camera.Instance.FollowPlayer(gameTime, player);
             Camera.Instance.UpdateZoom(gameTime);
+
+            prevMouse = mouse;
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // Mapa
             tileMap.Draw(tilesetTexture, gameTime, spriteBatch);
+
+            // Grappling hook (si la instancia existe y está viva)
+            if (grapplingHook != null && grapplingHook.CurrentHook != null && grapplingHook.CurrentHook.IsAlive)
+            {
+                grapplingHook.CurrentHook.Draw(spriteBatch, pixel, player.Center);
+            }
 
             // Player
             player.Draw(spriteBatch, gameTime);
@@ -177,7 +260,7 @@ namespace POCHAOSLYPSE
             foreach (var proj in projectiles)
                 proj.Draw(spriteBatch, pixel);
 
-            // Explosiones (rect rojo)
+            // Explosiones (rectángulo rojo)
             foreach (var ex in explosions)
                 ex.Draw(spriteBatch, pixel);
 
@@ -187,7 +270,7 @@ namespace POCHAOSLYPSE
                 string weaponName = currentWeapon.GetType().Name;
                 spriteBatch.DrawString(
                     hudFont,
-                    $"Arma actual: {weaponName}",
+                    $"Arma actual: {weaponName} (MOVE SPD: {player.MoveSpeed:0})",
                     new Vector2(10, 10),
                     Color.White
                 );
