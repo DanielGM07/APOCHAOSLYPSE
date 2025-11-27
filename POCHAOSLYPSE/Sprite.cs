@@ -13,6 +13,7 @@ namespace POCHAOSLYPSE
         public Vector2 origin = new();
         public Color color;
         public SpriteEffects facingLeft;
+
         public Sprite(Texture2D texture, Rectangle srcRec, Rectangle destRec)
         {
             this.texture = texture;
@@ -21,6 +22,7 @@ namespace POCHAOSLYPSE
             color = Color.White;
             facingLeft = SpriteEffects.None;
         }
+
         public Sprite(Texture2D texture, Rectangle sourceRectangle, Rectangle destRect, float rotation, Vector2 origin, Color color)
         {
             this.texture = texture;
@@ -30,40 +32,54 @@ namespace POCHAOSLYPSE
             this.origin = origin;
             this.color = color;
         }
+
+        /// <summary>
+        /// Centro del rectángulo destino en coordenadas de mundo.
+        /// </summary>
+        public Vector2 Center
+        {
+            get => destinationRectangle.Center.ToVector2();
+            set
+            {
+                destinationRectangle.X = (int)(value.X - destinationRectangle.Width / 2f);
+                destinationRectangle.Y = (int)(value.Y - destinationRectangle.Height / 2f);
+            }
+        }
+
         public virtual void Update(GameTime gameTime)
         { }
-public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
-{
-    // Centro del rect destino en mundo
-    Vector2 position = destinationRectangle.Center.ToVector2();
 
-    // Escala para adaptar source -> destino
-    Vector2 scale = new Vector2(
-        destinationRectangle.Width  / (float)sourceRectangle.Width,
-        destinationRectangle.Height / (float)sourceRectangle.Height
-    );
+        public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            // Centro del rect destino en mundo
+            Vector2 position = destinationRectangle.Center.ToVector2();
 
-    // Si no te dieron origin, usá el centro del source
-    if (origin == Vector2.Zero)
-    {
-        origin = new Vector2(
-            sourceRectangle.Width  / 2f,
-            sourceRectangle.Height / 2f
-        );
-    }
+            // Escala para adaptar source -> destino
+            Vector2 scale = new Vector2(
+                destinationRectangle.Width / (float)sourceRectangle.Width,
+                destinationRectangle.Height / (float)sourceRectangle.Height
+            );
 
-    spriteBatch.Draw(
-        texture,
-        position,            // centro en mundo
-        sourceRectangle,
-        color,
-        rotation,            // en radianes
-        origin,              // centro del source
-        scale,
-        facingLeft,
-        0f
-    );
-}
+            // Si no te dieron origin, usá el centro del source
+            if (origin == Vector2.Zero)
+            {
+                origin = new Vector2(
+                    sourceRectangle.Width / 2f,
+                    sourceRectangle.Height / 2f
+                );
+            }
 
+            spriteBatch.Draw(
+                texture,
+                position,            // centro en mundo
+                sourceRectangle,
+                color,
+                rotation,            // en radianes
+                origin,              // centro del source
+                scale,
+                facingLeft,
+                0f
+            );
+        }
     }
 }

@@ -1,20 +1,46 @@
-
-
-using System.Dynamic;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace POCHAOSLYPSE
 {
-    public class Weapon : Item
+    public abstract class Weapon : Item
     {
-        public float FireRate {get ; set;}
+        protected float fireCooldown;
+        public float FireRate { get; private set; }   // disparos por segundo
+        public float Knockback { get; private set; }  // knockback en píxeles hacia atrás
 
-
-
-
-        public Weapon(Texture2D texture, Rectangle srcRec, Rectangle destRect) : base(texture, srcRec, destRect)
+        protected Weapon(Texture2D texture, Rectangle srcRec, Rectangle destRect,
+                         float fireRate, float knockback)
+            : base(texture, srcRec, destRect)
         {
+            FireRate = fireRate;
+            Knockback = knockback;
         }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            if (fireCooldown > 0f)
+            {
+                fireCooldown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+        }
+
+        protected bool CanFire => fireCooldown <= 0f;
+
+        protected void ResetCooldown()
+        {
+            if (FireRate <= 0f)
+                fireCooldown = 0f;
+            else
+                fireCooldown = 1f / FireRate;
+        }
+
+        // muzzle: punto de salida del arma
+        // dir: dirección normalizada de disparo
+        public abstract void Fire(Vector2 muzzle, Vector2 dir,
+                                  List<Projectile> projectiles,
+                                  Entity owner);
     }
 }

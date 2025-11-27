@@ -3,9 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace POCHAOSLYPSE
 {
-    public class FireWeapon : Weapon
+    public abstract class FireWeapon : Weapon
     {
-        public FireWeapon(Texture2D texture, Rectangle srcRec, Rectangle destRect) : base(texture, srcRec, destRect)
+        protected FireWeapon(Texture2D texture, Rectangle srcRec, Rectangle destRect,
+                             float fireRate, float knockback)
+            : base(texture, srcRec, destRect, fireRate, knockback)
         {
         }
     }
