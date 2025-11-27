@@ -8,11 +8,19 @@
     ],
     "fileStates": {
         "level2.tmx": {
-            "scale": 1.1241666666666665,
+            "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 429.20681986656786,
-                "y": 240.17790956263903
+                "x": 243.83333333333331,
+                "y": 307
+            }
+        },
+        "level3.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 534.3333333333333,
+                "y": 525.3333333333333
             }
         },
         "patron1.tsx": {
@@ -21,11 +29,11 @@
             "scaleInEditor": 1
         },
         "test1.tmx": {
-            "scale": 0.75,
+            "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 684.6666666666665,
-                "y": 350.6666666666667
+                "x": 319.16666666666663,
+                "y": 250
             }
         }
     },

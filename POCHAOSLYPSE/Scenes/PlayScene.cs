@@ -1,7 +1,5 @@
-// TODO: Este es tu PlayScene COMPLETO, pero solo modificado donde pediste.
-// NO SE TOCÓ NINGUNA OTRA LÍNEA QUE NO FUERA NECESARIA.
-
 using System.Collections.Generic;
+using System.IO; // 👈 añadido
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -62,7 +60,18 @@ namespace POCHAOSLYPSE
 
             tilesetTexture = loader.LoadImage(tilesetPath);
 
-            var playerRect = new Rectangle(160, 160, 32, 32);
+            // 🔹 Buscar primer tile con id 0 en el CSV para spawnear al player
+            Point? spawnPoint = FindPlayerSpawnFromCsv(mapPath);
+
+            if (!spawnPoint.HasValue)
+            {
+                // Si no hay ningún id 0, no spawneamos al player (error explícito)
+                throw new System.InvalidOperationException(
+                    $"No se encontró ningún bloque con id 0 en el mapa '{mapPath}' para spawnear al jugador.");
+            }
+
+            // Ajustás el tamaño del player como antes (32x32), pero en la posición del tile id 0
+            var playerRect = new Rectangle(spawnPoint.Value.X, spawnPoint.Value.Y, 32, 32);
 
             player = new Player(pixel, pixelRectangle, playerRect, Color.White);
             player.color = Color.Black;
@@ -118,10 +127,10 @@ namespace POCHAOSLYPSE
 
                 Color col = spawn.Kind switch
                 {
-                    EnemyKind.Light => Color.Cyan,
+                    EnemyKind.Light  => Color.Cyan,
                     EnemyKind.Medium => Color.Orange,
-                    EnemyKind.Heavy => Color.DarkRed,
-                    _ => Color.IndianRed
+                    EnemyKind.Heavy  => Color.DarkRed,
+                    _                => Color.IndianRed
                 };
 
                 var enemy = new Enemy(pixel, pixelRectangle, enemyRect, col, spawn.Kind)
@@ -133,6 +142,43 @@ namespace POCHAOSLYPSE
             }
         }
 
+        // 🔹 Lee el CSV del mapa y devuelve la posición (en píxeles) del PRIMER tile con id 0
+        private Point? FindPlayerSpawnFromCsv(string csvPath)
+        {
+            if (!File.Exists(csvPath))
+                return null;
+
+            string[] lines = File.ReadAllLines(csvPath);
+
+            // Usa el tamaño de tile que estés usando en tu TileMap.
+            // Si tus tiles son de 16x16, esto está bien. Si son de 32, ponelo en 32.
+            const int TILE_SIZE = 16;
+
+            for (int row = 0; row < lines.Length; row++)
+            {
+                string line = lines[row].Trim();
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                string[] parts = line.Split(',');
+
+                for (int col = 0; col < parts.Length; col++)
+                {
+                    if (!int.TryParse(parts[col], out int id))
+                        continue;
+
+                    if (id == 0)
+                    {
+                        int x = col * TILE_SIZE;
+                        int y = row * TILE_SIZE;
+                        return new Point(x, y);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public void UnloadContent()
         {
             pixel?.Dispose();
@@ -141,6 +187,8 @@ namespace POCHAOSLYPSE
 
         public void Update(GameTime gameTime)
         {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             var mouse = Mouse.GetState();
             var keyboard = Keyboard.GetState();
 
@@ -251,7 +299,10 @@ namespace POCHAOSLYPSE
             explosions.RemoveAll(e => !e.IsAlive);
 
             foreach (var f in flames)
+            {
                 f.Update(gameTime);
+                f.ApplyDamage(enemies, dt);
+            }
             flames.RemoveAll(f => !f.IsAlive);
 
             HandlePlayerProjectilesVsEnemies(projectiles, enemies);
@@ -416,6 +467,35 @@ namespace POCHAOSLYPSE
 
                 if (enemy.MeleeHitbox.HasValue)
                     spriteBatch.Draw(pixel, enemy.MeleeHitbox.Value, Color.Red * 0.4f);
+
+                if (enemy.MaxHealth > 0)
+                {
+                    float hpPercent = MathHelper.Clamp(enemy.Health / (float)enemy.MaxHealth, 0f, 1f);
+
+                    int barWidth = enemy.destinationRectangle.Width;
+                    int barHeight = 6;
+
+                    int barX = enemy.destinationRectangle.Left;
+                    int barY = enemy.destinationRectangle.Top - 12;
+
+                    Rectangle fondo = new Rectangle(barX, barY, barWidth, barHeight);
+                    Rectangle barra = new Rectangle(barX, barY, (int)(barWidth * hpPercent), barHeight);
+
+                    spriteBatch.Draw(pixel, fondo, Color.Black * 0.5f);
+
+                    Color colVida = Color.Lerp(Color.Red, Color.LimeGreen, hpPercent);
+                    spriteBatch.Draw(pixel, barra, colVida);
+
+                    int percentInt = (int)(hpPercent * 100f);
+                    string hpText = $"HP: {enemy.Health}/{enemy.MaxHealth} ({percentInt}%)";
+
+                    spriteBatch.DrawString(
+                        hudFont,
+                        hpText,
+                        new Vector2(barX, barY - 16),
+                        Color.White
+                    );
+                }
             }
 
             player.Draw(spriteBatch, gameTime);

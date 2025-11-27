@@ -13,6 +13,9 @@ namespace POCHAOSLYPSE
         public EnemyKind Kind      { get; }
         public float     DetectionRadius { get; private set; }
 
+        // 🔹 NUEVO: vida máxima para poder calcular porcentaje
+        public int MaxHealth { get; private set; }
+
         // Físicas simples
         private float MoveSpeed;
         private float Gravity      = 2000f;
@@ -49,27 +52,30 @@ namespace POCHAOSLYPSE
             switch (Kind)
             {
                 case EnemyKind.Heavy:
-                    Health          = 300;
-                    MoveSpeed       = 80f;
+                    MaxHealth      = 300;
+                    Health         = MaxHealth;
+                    MoveSpeed      = 80f;
                     DetectionRadius = 350f;
-                    meleeCooldown   = 1.7f;
-                    rangedCooldown  = 2.8f;
+                    meleeCooldown  = 1.7f;
+                    rangedCooldown = 2.8f;
                     break;
 
                 case EnemyKind.Medium:
-                    Health          = 150;
-                    MoveSpeed       = 220f;
+                    MaxHealth      = 150;
+                    Health         = MaxHealth;
+                    MoveSpeed      = 220f;
                     DetectionRadius = 450f;
-                    meleeCooldown   = 0.7f;
-                    rangedCooldown  = 1.1f;
+                    meleeCooldown  = 0.7f;
+                    rangedCooldown = 1.1f;
                     break;
 
                 case EnemyKind.Light:
-                    Health          = 40;
-                    MoveSpeed       = 170f;
+                    MaxHealth      = 40;
+                    Health         = MaxHealth;
+                    MoveSpeed      = 170f;
                     DetectionRadius = 600f;
-                    meleeCooldown   = 0.0f;   // no melee real (solo "proximidad")
-                    rangedCooldown  = 0.6f;
+                    meleeCooldown  = 0.0f;   // no melee real (solo "proximidad")
+                    rangedCooldown = 0.6f;
                     break;
             }
         }

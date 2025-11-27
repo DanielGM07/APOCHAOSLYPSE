@@ -15,7 +15,7 @@ namespace POCHAOSLYPSE
         private const float FlameSpeedMax     = 1000f;
         private const float FlameLifetime     = 1.8f;    // en segundos
         private const float FlameRadius       = 8f;
-        private const float FlameDamagePerSec = 8f;      // daño por segundo por partícula
+        private const float FlameDamagePerSec = 150f;      // daño por segundo por partícula
 
         // Spread (cono de fuego)
         private static readonly float SpreadAngle = MathHelper.ToRadians(40f); // bastante abierto
