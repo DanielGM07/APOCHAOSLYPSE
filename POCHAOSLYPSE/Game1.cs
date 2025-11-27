@@ -11,7 +11,6 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
     public Item item;
-    public Item item2;
     public Item item3;
     private TileMap tileMap = new(false, false);
     private Texture2D t_world;
@@ -20,19 +19,18 @@ public class Game1 : Game
     private Texture2D pixel;
 
     // 🔹 Nuevo: player y armas
+    private List<Sprite> sprites;
     private Player player;
     private Weapon ak47;
     private Weapon shotgun;
     private Weapon rocketLauncher;
     private Weapon katana;
+
     private Weapon currentWeapon;
 
     // 🔹 Nuevo: lista de proyectiles
     private readonly List<Projectile> projectiles = new();
 
-    // 🔹 Nuevo: estados de input previo
-    private KeyboardState previousKeyboard;
-    private MouseState previousMouse;
 
     // 🔹 Nuevo: fuente para HUD
     private SpriteFont hudFont;
@@ -61,37 +59,35 @@ public class Game1 : Game
         // 🔹 HUD font (asegurate de tener un SpriteFont llamado "DefaultFont")
         hudFont = Content.Load<SpriteFont>("font");
 
-        // Textura 1x1 blanca reutilizable
-        pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel = new Texture2D(GraphicsDevice, 1, 1); // mala practica
         pixel.SetData(new[] { Color.White });
+        Rectangle pixelRectangle = new(0,0,1,1);
 
-        // RECTÁNGULO DE PRUEBA: 100x100 centrado en la pantalla
         item3 = new Item(
-            pixel,                      // textura 1x1
-            new Rectangle(0, 0, 1, 1),  // source 1x1
+            pixel,
+            pixelRectangle,
             new Rectangle(
                 50,
                 50,
                 100,
                 100
-            )
+            ),
+            Color.White
         );
         item3.color = Color.Red; // para verlo bien
 
         Texture2D t = ContentLoader.Instance.LoadImage("Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Keys/scenes_key_idle.png");
-        item = new Item(t, new(0, 0, 16, 16), new(
-            _graphics.PreferredBackBufferWidth / 2 - 50,
-            _graphics.PreferredBackBufferHeight / 2 - 50,
-            100,
-            100)
+        item = new Item(t,
+            pixelRectangle,
+            new(
+              _graphics.PreferredBackBufferWidth / 2 - 50,
+              _graphics.PreferredBackBufferHeight / 2 - 50,
+              100,
+              100
+            ),
+            Color.White
         );
 
-        item2 = new Item(t, new(0, 0, 16, 16), new(
-            _graphics.PreferredBackBufferWidth / 2 - 50,
-            _graphics.PreferredBackBufferHeight / 2 - 50,
-            100,
-            100)
-        );
 
         tileMap.GetBlocks("tiled/test1.csv");
         t_world = ContentLoader.Instance.LoadImage("Content/Another Metroidvania Asset Pack Vol. 1 ver. 1.5/Tilesets/library/tileset_library.png");
@@ -105,62 +101,71 @@ public class Game1 : Game
         );
         player = new Player(
             pixel,
-            new Rectangle(0, 0, 1, 1),
-            playerRect
+            pixelRectangle,
+            playerRect,
+            Color.White
         );
         player.color = Color.Black;
 
         // 🔹 Armas como rectángulos de distintos colores
         ak47 = new AK47(
             texture: pixel,
-            srcRec: new Rectangle(0, 0, 1, 1),
-            destRect: new Rectangle(0, 0, 50, 10)
+            pixelRectangle,
+            destRect: new Rectangle(0, 0, 50, 10),
+            Color.Yellow
         );
-        ak47.color = Color.Yellow;
 
         shotgun = new Shotgun(
             texture: pixel,
-            srcRec: new Rectangle(0, 0, 1, 1),
-            destRect: new Rectangle(0, 0, 60, 12)
+            pixelRectangle,
+            destRect: new Rectangle(0, 0, 60, 12),
+            Color.OrangeRed
         );
         shotgun.color = Color.OrangeRed;
 
         rocketLauncher = new RocketLauncher(
             texture: pixel,
-            srcRec: new Rectangle(0, 0, 1, 1),
-            destRect: new Rectangle(0, 0, 60, 14)
+            pixelRectangle,
+            destRect: new Rectangle(0, 0, 60, 14),
+            Color.LimeGreen
         );
-        rocketLauncher.color = Color.LimeGreen;
 
         katana = new Katana(
             texture: pixel,
-            srcRec: new Rectangle(0, 0, 1, 1),
-            destRect: new Rectangle(0, 0, 10, 50)
+            pixelRectangle,
+            destRect: new Rectangle(0, 0, 10, 50),
+            Color.MediumPurple
         );
-        katana.color = Color.MediumPurple;
 
         // Arma inicial
         currentWeapon = shotgun;
+
+        // adding everything to a list to make easier things there
+        sprites = new();
+        sprites.Add(item);
+        sprites.Add(item3);
+        sprites.Add(ak47);
+        sprites.Add(player);
+        sprites.Add(rocketLauncher);
+        sprites.Add(katana);
+        sprites.Add(shotgun);
     }
 
     protected override void Update(GameTime gameTime)
     {
-        var keyboard = Keyboard.GetState();
         var mouse = Mouse.GetState();
 
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboard.IsKeyDown(Keys.Escape))
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // Escenas (no se tocan)
         sceneManager.getScene().Update(gameTime);
 
         // Items de prueba
         item.Update(gameTime);
         item3.Update(gameTime);
-        // (item2 no se actualizaba en tu código original, lo dejo así como estaba)
 
         // 🔹 Actualizar player (movimiento libre)
-        player.Update(keyboard, previousKeyboard, gameTime);
+        player.Update(gameTime);
 
         // 🔹 Dirección de apuntado (player -> mouse, en mundo)
         Vector2 mouseWorld = Camera.Instance.ScreenToCamera(mouse.Position.ToVector2());
@@ -170,37 +175,25 @@ public class Game1 : Game
         else
             aimDir = Vector2.UnitX;
 
-        // 🔹 Cambio de arma (1–4)
-        if (keyboard.IsKeyDown(Keys.D1)) currentWeapon = ak47;
-        if (keyboard.IsKeyDown(Keys.D2)) currentWeapon = shotgun;
-        if (keyboard.IsKeyDown(Keys.D3)) currentWeapon = rocketLauncher;
-        if (keyboard.IsKeyDown(Keys.D4)) currentWeapon = katana;
+        if (Keyboard.GetState().IsKeyDown(Keys.D1)) currentWeapon = ak47;
+        if (Keyboard.GetState().IsKeyDown(Keys.D2)) currentWeapon = shotgun;
+        if (Keyboard.GetState().IsKeyDown(Keys.D3)) currentWeapon = rocketLauncher;
+        if (Keyboard.GetState().IsKeyDown(Keys.D4)) currentWeapon = katana;
 
-        // 🔹 “Atar” el arma al player: posición = centro del player + offset hacia donde apunta
         Vector2 weaponOffset = aimDir * 30f;
-        if (currentWeapon is Item weaponItem)
-        {
-            weaponItem.position = player.Center + weaponOffset;
-            weaponItem.Update(gameTime); // rota hacia el mouse en Item.Update
-        }
+        currentWeapon.position = player.Center + weaponOffset;
+        currentWeapon.Update(gameTime);
 
-        // 🔹 Disparo con botón izquierdo (FireRate se maneja dentro de cada arma)
-        bool shootPressed = mouse.LeftButton == ButtonState.Pressed;
-        if (shootPressed && currentWeapon != null)
+        if (mouse.LeftButton == ButtonState.Pressed)
         {
-            // Muzzle un poco adelante del arma
             Vector2 muzzle = player.Center + aimDir * 50f;
             currentWeapon.Fire(muzzle, aimDir, projectiles, player);
         }
 
-        // 🔹 Actualizar proyectiles
         for (int i = 0; i < projectiles.Count; i++)
             projectiles[i].Update(gameTime);
 
         projectiles.RemoveAll(p => !p.IsAlive);
-
-        previousKeyboard = keyboard;
-        previousMouse = mouse;
 
         base.Update(gameTime);
     }
@@ -224,19 +217,13 @@ public class Game1 : Game
             spriteBatch: _spriteBatch
         );
 
-        item2.Draw(_spriteBatch, gameTime);
-
         // Tilemap
         tileMap.Draw(t_world, gameTime, _spriteBatch);
 
         // 🔹 Player
         player.Draw(_spriteBatch, gameTime);
 
-        // 🔹 Arma actual (rectángulo rotando hacia el mouse)
-        if (currentWeapon is Sprite weaponSprite)
-        {
-            weaponSprite.Draw(_spriteBatch, gameTime);
-        }
+        currentWeapon.Draw(_spriteBatch, gameTime);
 
         // 🔹 Proyectiles
         foreach (var proj in projectiles)

@@ -13,8 +13,8 @@ namespace POCHAOSLYPSE
         // Más adelante ExplosionRadius se puede usar cuando tengas colisiones
         public float ExplosionRadius = 80f;
 
-        public RocketLauncher(Texture2D texture, Rectangle srcRec, Rectangle destRect)
-            : base(texture, srcRec, destRect, fireRate: 0.5f, knockback: 20f) // knockback medio
+        public RocketLauncher(Texture2D texture, Rectangle srcRec, Rectangle destRect, Color color)
+            : base(texture, srcRec, destRect, fireRate: 0.5f, knockback: 20f, color) // knockback medio
         {
         }
 

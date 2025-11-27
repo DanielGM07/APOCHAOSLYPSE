@@ -14,8 +14,8 @@ namespace POCHAOSLYPSE
 
         private static readonly Random rng = new();
 
-        public AK47(Texture2D texture, Rectangle srcRec, Rectangle destRect)
-            : base(texture, srcRec, destRect, fireRate: 10f, knockback: 5f)
+        public AK47(Texture2D texture, Rectangle srcRec, Rectangle destRect, Color color)
+            : base(texture, srcRec, destRect, fireRate: 10f, knockback: 5f, color)
         {
         }
 

@@ -5,8 +5,8 @@ namespace POCHAOSLYPSE
 {
     public class Enemy : Entity
     {
-        public Enemy(Texture2D texture, Rectangle srcRec, Rectangle destRec)
-            : base(texture, srcRec, destRec)
+        public Enemy(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color)
+            : base(texture, srcRec, destRec, color)
         {
             Health = 100;
             color = Color.IndianRed;

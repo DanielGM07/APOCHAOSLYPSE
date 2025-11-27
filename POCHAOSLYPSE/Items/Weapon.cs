@@ -11,8 +11,8 @@ namespace POCHAOSLYPSE
         public float Knockback { get; private set; }  // knockback en píxeles hacia atrás
 
         protected Weapon(Texture2D texture, Rectangle srcRec, Rectangle destRect,
-                         float fireRate, float knockback)
-            : base(texture, srcRec, destRect)
+                         float fireRate, float knockback, Color color)
+            : base(texture, srcRec, destRect, color)
         {
             FireRate = fireRate;
             Knockback = knockback;

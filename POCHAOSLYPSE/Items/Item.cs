@@ -12,8 +12,8 @@ namespace POCHAOSLYPSE
         // Centro lógico del item en coordenadas de mundo
         public Vector2 position;
 
-        public Item(Texture2D texture, Rectangle srcRec, Rectangle destRect)
-            : base(texture, srcRec, destRect)
+        public Item(Texture2D texture, Rectangle srcRec, Rectangle destRect, Color color)
+            : base(texture, srcRec, destRect, color)
         {
             // Usamos el centro del source como origen para rotar
             origin = new Vector2(

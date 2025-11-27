@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace POCHAOSLYPSE;
 public class TileMap
 {
-    public Dictionary<Point, Block> blocks {get;} = new();
+    public List<Block> blocks {get;} = new();
     public bool isCollidable {get;}
     public bool canDraw {get;}
     private int scaleTexture = 16;
@@ -34,10 +34,10 @@ public class TileMap
                 {
                     if(block < 0) continue;
                     Point point = new(x,y);
-                    blocks[point] = new Collisionblock(
+                    blocks.Add(new Collisionblock(
                         GetDestRect(point),
                         GetSrcRect(block)
-                    );
+                    ));
                 }
             }
             y++;
@@ -66,18 +66,33 @@ public class TileMap
             scaleTexture
         );
     }
-    public void CheckCollisionHorizontal(Sprite entity)
+
+    public void CheckCollisionHorizontal(Sprite entityDest)
     {
-        
+      foreach(var block in blocks)
+      {
+        if(block.collider.Intersects(entityDest.destinationRectangle))
+        {
+          block.horizontalAction(entityDest);
+        }
+      }
     }
+
     public void CheckCollisionVertical(Sprite entity)
     {
+      foreach(var block in blocks)
+      {
+        if(block.collider.Intersects(entity.destinationRectangle))
+        {
+          block.verticalActions(entity);
+        }
+      }
     }
+
     public void Draw(Texture2D texture, GameTime gameTime, SpriteBatch spriteBatch)
     {
-        foreach(var block in blocks.Values)
+        foreach(var block in blocks)
         {
-          //Console.WriteLine($"srcRect: {block.srcRectangle} / destRect: {block.collider}");
             spriteBatch.Draw(texture, block.collider, block.srcRectangle, Color.White);
         }
     }

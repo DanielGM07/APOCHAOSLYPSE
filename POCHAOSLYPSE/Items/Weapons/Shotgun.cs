@@ -13,8 +13,8 @@ namespace POCHAOSLYPSE
         private const float BulletLifetime = 0.8f;
         private const float DamagePerPellet = 6f;
 
-        public Shotgun(Texture2D texture, Rectangle srcRec, Rectangle destRect)
-            : base(texture, srcRec, destRect, fireRate: 1.0f, knockback: 35f) // knockback grande
+        public Shotgun(Texture2D texture, Rectangle srcRec, Rectangle destRect, Color color)
+            : base(texture, srcRec, destRect, fireRate: 1.0f, knockback: 35f, color) // knockback grande
         {
         }
 

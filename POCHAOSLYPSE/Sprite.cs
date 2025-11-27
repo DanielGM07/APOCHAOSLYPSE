@@ -14,12 +14,12 @@ namespace POCHAOSLYPSE
         public Color color;
         public SpriteEffects facingLeft;
 
-        public Sprite(Texture2D texture, Rectangle srcRec, Rectangle destRec)
+        public Sprite(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color)
         {
             this.texture = texture;
             this.sourceRectangle = srcRec;
             this.destinationRectangle = destRec;
-            color = Color.White;
+            this.color = color;
             facingLeft = SpriteEffects.None;
         }
 
@@ -52,7 +52,6 @@ namespace POCHAOSLYPSE
         public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             // Centro del rect destino en mundo
-            Vector2 position = destinationRectangle.Center.ToVector2();
 
             // Escala para adaptar source -> destino
             Vector2 scale = new Vector2(
@@ -71,11 +70,11 @@ namespace POCHAOSLYPSE
 
             spriteBatch.Draw(
                 texture,
-                position,            // centro en mundo
+                Center,
                 sourceRectangle,
                 color,
-                rotation,            // en radianes
-                origin,              // centro del source
+                rotation,
+                origin,
                 scale,
                 facingLeft,
                 0f

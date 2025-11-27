@@ -5,9 +5,8 @@ namespace POCHAOSLYPSE
 {
     public abstract class FireWeapon : Weapon
     {
-        protected FireWeapon(Texture2D texture, Rectangle srcRec, Rectangle destRect,
-                             float fireRate, float knockback)
-            : base(texture, srcRec, destRect, fireRate, knockback)
+        protected FireWeapon(Texture2D texture, Rectangle srcRec, Rectangle destRect, float fireRate, float knockback, Color color)
+            : base(texture, srcRec, destRect, fireRate, knockback, color)
         {
         }
     }

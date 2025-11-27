@@ -6,8 +6,8 @@ namespace POCHAOSLYPSE
 {
     public class Katana : MeleeWeapon
     {
-        public Katana(Texture2D texture, Rectangle srcRec, Rectangle destRect)
-            : base(texture, srcRec, destRect, fireRate: 2.0f, knockback: 0f)
+        public Katana(Texture2D texture, Rectangle srcRec, Rectangle destRect, Color color)
+            : base(texture, srcRec, destRect, fireRate: 2.0f, knockback: 0f, color)
         {
         }
 

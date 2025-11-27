@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace POCHAOSLYPSE
 {
-    public class Projectile
+    public class Projectile //TODO: make this a Sprite child
     {
         public Vector2 Position;
         public Vector2 Velocity;

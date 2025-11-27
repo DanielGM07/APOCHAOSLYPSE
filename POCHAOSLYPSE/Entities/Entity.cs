@@ -12,7 +12,7 @@ namespace POCHAOSLYPSE
         public Vector2 velocity { get; set; }
         public bool isFacingLeft = false;
 
-        public Entity(Texture2D texture, Rectangle srcRec, Rectangle destRec) : base(texture, srcRec, destRec)
+        public Entity(Texture2D texture, Rectangle srcRec, Rectangle destRec, Color color) : base(texture, srcRec, destRec, color)
         {
         }
 
