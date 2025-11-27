@@ -19,11 +19,13 @@ namespace POCHAOSLYPSE
         private Weapon katana;
         private Weapon gatlingGun;
         private GrapplingHookWeapon grapplingHook;
+        private FlamethrowerWeapon flamethrower;   // 🔥 nuevo
 
         private Weapon currentWeapon;
 
-        private readonly List<Projectile> projectiles = new();
-        private readonly List<Explosion>  explosions  = new();
+        private readonly List<Projectile>   projectiles = new();
+        private readonly List<Explosion>    explosions  = new();
+        private readonly List<FlameParticle> flames     = new();  // 🔥 partículas de fuego
 
         private SpriteFont hudFont;
 
@@ -111,6 +113,13 @@ namespace POCHAOSLYPSE
                 color:    Color.Cyan
             );
 
+            flamethrower = new FlamethrowerWeapon(
+                texture:  pixel,
+                srcRec:   pixelRectangle,
+                destRect: new Rectangle(0, 0, 55, 12),
+                color:    Color.Orange
+            );
+
             // Arma inicial
             currentWeapon = shotgun;
         }
@@ -126,8 +135,8 @@ namespace POCHAOSLYPSE
             var mouse    = Mouse.GetState();
             var keyboard = Keyboard.GetState();
 
-            bool leftDown       = mouse.LeftButton == ButtonState.Pressed;
-            bool leftWasDown    = prevMouse.LeftButton == ButtonState.Pressed;
+            bool leftDown         = mouse.LeftButton == ButtonState.Pressed;
+            bool leftWasDown      = prevMouse.LeftButton == ButtonState.Pressed;
             bool leftJustPressed  = leftDown && !leftWasDown;
             bool leftJustReleased = !leftDown && leftWasDown;
 
@@ -148,15 +157,16 @@ namespace POCHAOSLYPSE
             else
                 aimDir = Vector2.UnitX;
 
-            // 🔹 Cambio de arma (D1–D6)
+            // 🔹 Cambio de arma
             if (keyboard.IsKeyDown(Keys.D1)) currentWeapon = ak47;
             if (keyboard.IsKeyDown(Keys.D2)) currentWeapon = shotgun;
             if (keyboard.IsKeyDown(Keys.D3)) currentWeapon = rocketLauncher;
             if (keyboard.IsKeyDown(Keys.D4)) currentWeapon = katana;
             if (keyboard.IsKeyDown(Keys.D5)) currentWeapon = gatlingGun;
             if (keyboard.IsKeyDown(Keys.D6)) currentWeapon = grapplingHook;
+            if (keyboard.IsKeyDown(Keys.D7)) currentWeapon = flamethrower;
 
-            // 🔹 Peso de armas: modificar MoveSpeed del player
+            // 🔹 Peso de armas
             float baseMoveSpeed = 250f;
 
             if (currentWeapon == gatlingGun)
@@ -169,14 +179,18 @@ namespace POCHAOSLYPSE
             }
             else if (currentWeapon == grapplingHook)
             {
-                player.MoveSpeed = baseMoveSpeed * 0.9f; // un poquito más pesada si querés
+                player.MoveSpeed = baseMoveSpeed * 0.9f;
+            }
+            else if (currentWeapon == flamethrower)
+            {
+                player.MoveSpeed = baseMoveSpeed * 0.8f; // algo pesado
             }
             else
             {
                 player.MoveSpeed = baseMoveSpeed;
             }
 
-            // Posición del arma (para todas)
+            // Posición del arma
             Vector2 weaponOffset   = aimDir * 30f;
             currentWeapon.Position = player.Center + weaponOffset;
             currentWeapon.Update(gameTime);
@@ -184,7 +198,6 @@ namespace POCHAOSLYPSE
             // 🔹 Lógica de disparo según tipo de arma
             if (currentWeapon is GrapplingHookWeapon hookWeapon)
             {
-                // Punto de salida del hook (un poco adelante del arma)
                 Vector2 muzzle = player.Center + aimDir * 40f;
 
                 if (leftJustPressed)
@@ -192,47 +205,64 @@ namespace POCHAOSLYPSE
                     hookWeapon.StartGrapple(muzzle, aimDir, player);
                 }
 
-                // Actualizar hook (viaje, colisiones, atracción)
                 hookWeapon.UpdateHook(gameTime, tileMap, player, isHoldingButton: leftDown);
 
                 if (leftJustReleased)
                 {
-                    // Soltaste el botón: si no estaba enganchado, desaparece;
-                    // si estaba enganchado, deja al player con el momentum actual.
                     hookWeapon.Release();
+                }
+            }
+            else if (currentWeapon is FlamethrowerWeapon flameWeapon)
+            {
+                // 🔥 Lanzallamas: mantener click = emitir fuego
+                if (leftDown)
+                {
+                    Vector2 muzzle = player.Center + aimDir * 35f;
+                    flameWeapon.EmitFlames(muzzle, aimDir, flames, player);
+                }
+
+                // Si cambiamos de arma, asegurate que el hook no siga activo
+                if (grapplingHook != null && grapplingHook.CurrentHook != null)
+                {
+                    grapplingHook.Release();
                 }
             }
             else
             {
-                // Armas normales
+                // Armas normales (balas/proyectiles)
                 if (leftDown)
                 {
                     Vector2 muzzle = player.Center + aimDir * 50f;
                     currentWeapon.Fire(muzzle, aimDir, projectiles, player);
                 }
 
-                // Si cambiamos de arma, nos aseguramos de que el hook no siga activo
                 if (grapplingHook != null && grapplingHook.CurrentHook != null)
                 {
                     grapplingHook.Release();
                 }
             }
 
-            // 🔹 Proyectiles normales
+            // 🔹 Proyectiles "normales"
             for (int i = 0; i < projectiles.Count; i++)
                 projectiles[i].Update(gameTime);
 
-            // Colisiones bala ↔ bloques (mata balas y genera explosiones de rocket)
             tileMap.HandleProjectileCollisions(projectiles, explosions);
 
             projectiles.RemoveAll(p => !p.IsAlive);
 
-            // Explosiones (rectángulos rojos)
+            // 🔹 Explosiones
             for (int i = 0; i < explosions.Count; i++)
                 explosions[i].Update(gameTime);
             explosions.RemoveAll(e => !e.IsAlive);
 
-            // Cámara: follow + zoom suave
+            // 🔹 Partículas de fuego
+            for (int i = 0; i < flames.Count; i++)
+                flames[i].Update(gameTime);
+            flames.RemoveAll(f => !f.IsAlive);
+
+            // FUTURO: acá podrías pasar la lista de enemigos a cada flame.ApplyDamage(enemies, dt)
+
+            // 🔹 Cámara
             Camera.Instance.FollowPlayer(gameTime, player);
             Camera.Instance.UpdateZoom(gameTime);
 
@@ -244,11 +274,15 @@ namespace POCHAOSLYPSE
             // Mapa
             tileMap.Draw(tilesetTexture, gameTime, spriteBatch);
 
-            // Grappling hook (si la instancia existe y está viva)
+            // Hook (cuerda + cabeza) si existe
             if (grapplingHook != null && grapplingHook.CurrentHook != null && grapplingHook.CurrentHook.IsAlive)
             {
                 grapplingHook.CurrentHook.Draw(spriteBatch, pixel, player.Center);
             }
+
+            // 🔥 Partículas de fuego
+            foreach (var flame in flames)
+                flame.Draw(spriteBatch, pixel);
 
             // Player
             player.Draw(spriteBatch, gameTime);
@@ -260,7 +294,7 @@ namespace POCHAOSLYPSE
             foreach (var proj in projectiles)
                 proj.Draw(spriteBatch, pixel);
 
-            // Explosiones (rectángulo rojo)
+            // Explosiones
             foreach (var ex in explosions)
                 ex.Draw(spriteBatch, pixel);
 

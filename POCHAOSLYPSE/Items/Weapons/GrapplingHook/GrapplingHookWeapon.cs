@@ -12,7 +12,7 @@ namespace POCHAOSLYPSE
 
         // Configuración de la fuerza de atracción
         private const float MinPullStrength = 2000f; // fuerza a corta distancia
-        private const float MaxPullStrength = 8000f; // fuerza a larga distancia
+        private const float MaxPullStrength = 15000f; // fuerza a larga distancia
         private const float StopDistance    = 24f;   // distancia mínima para "llegó"
 
         public GrappleProjectile CurrentHook { get; private set; }
