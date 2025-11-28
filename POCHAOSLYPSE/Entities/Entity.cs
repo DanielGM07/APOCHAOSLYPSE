@@ -6,8 +6,8 @@ namespace POCHAOSLYPSE
     public class Entity : Sprite
     {
         public bool onGround { get; set; } = false;
-        public int  Health   { get; set; }
-        public bool isAlive  => Health > 0;
+        public float Health { get; set; }
+        public bool isAlive => Health > 0f;
 
         public Vector2 velocity = Vector2.Zero;
 

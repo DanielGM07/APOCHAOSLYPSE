@@ -14,7 +14,7 @@ namespace POCHAOSLYPSE
         public float DetectionRadius { get; private set; }
 
         // 🔹 NUEVO: vida máxima para poder calcular porcentaje
-        public int MaxHealth { get; private set; }
+        public float MaxHealth { get; private set; }
 
         // Físicas simples
         private float MoveSpeed;

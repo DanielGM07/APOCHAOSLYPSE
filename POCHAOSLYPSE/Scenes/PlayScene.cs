@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO; // 👈 añadido
 using Microsoft.Xna.Framework;
@@ -127,10 +128,10 @@ namespace POCHAOSLYPSE
 
                 Color col = spawn.Kind switch
                 {
-                    EnemyKind.Light  => Color.Cyan,
+                    EnemyKind.Light => Color.Cyan,
                     EnemyKind.Medium => Color.Orange,
-                    EnemyKind.Heavy  => Color.DarkRed,
-                    _                => Color.IndianRed
+                    EnemyKind.Heavy => Color.DarkRed,
+                    _ => Color.IndianRed
                 };
 
                 var enemy = new Enemy(pixel, pixelRectangle, enemyRect, col, spawn.Kind)
@@ -282,6 +283,10 @@ namespace POCHAOSLYPSE
                 p.Update(gameTime);
 
             tileMap.HandleProjectileCollisions(projectiles, explosions);
+
+            // 🔹 aplicar daño en área para cohetes explosivos que hayan muerto este frame
+            HandleRocketExplosions(projectiles, enemies);
+
             projectiles.RemoveAll(p => !p.IsAlive);
 
             foreach (var enemy in enemies)
@@ -337,6 +342,18 @@ namespace POCHAOSLYPSE
                     if (projRect.Intersects(enemy.destinationRectangle))
                     {
                         enemy.Health -= (int)bullet.Damage;
+
+                        // 🔹 si el proyectil es explosivo, crear la Explosion visual también
+                        if (bullet.IsExplosive)
+                        {
+                            explosions.Add(new Explosion(
+                                position: bullet.Position,
+                                radius: bullet.ExplosionRadius,
+                                lifetime: 0.25f,        // mismo valor que usas al chocar con paredes
+                                color: Color.Red * 0.8f // o el color que ya uses en tu Explosion
+                            ));
+                        }
+
                         bullet.Lifetime = 0f;
 
                         if (!enemy.isAlive)
@@ -349,6 +366,7 @@ namespace POCHAOSLYPSE
                 }
             }
         }
+
 
         private void HandleEnemyProjectilesVsPlayer(List<Projectile> bullets, Player player)
         {
@@ -368,6 +386,37 @@ namespace POCHAOSLYPSE
                     player.Health -= (int)bullet.Damage;
                     bullet.Lifetime = 0f;
                     Camera.Instance.Shake(6f, 0.1f);
+                }
+            }
+        }
+
+        private void HandleRocketExplosions(List<Projectile> bullets, List<Enemy> enemies)
+        {
+            foreach (var bullet in bullets)
+            {
+                // solo nos interesa si es explosivo y ya NO está vivo
+                if (!bullet.IsExplosive || bullet.IsAlive)
+                    continue;
+
+                float radius = bullet.ExplosionRadius;
+
+                // usamos un rectángulo para el AOE (podés verlo como "radio" cuadrado)
+                Rectangle explosionRect = new Rectangle(
+                    (int)(bullet.Position.X - radius),
+                    (int)(bullet.Position.Y - radius),
+                    (int)(radius * 2f),
+                    (int)(radius * 2f)
+                );
+
+                foreach (var enemy in enemies)
+                {
+                    if (!enemy.isAlive) continue;
+
+                    if (explosionRect.Intersects(enemy.destinationRectangle))
+                    {
+                        // daño de la explosión para TODOS los enemigos dentro del radio
+                        enemy.Health -= bullet.Damage;
+                    }
                 }
             }
         }
@@ -486,8 +535,10 @@ namespace POCHAOSLYPSE
                     Color colVida = Color.Lerp(Color.Red, Color.LimeGreen, hpPercent);
                     spriteBatch.Draw(pixel, barra, colVida);
 
-                    int percentInt = (int)(hpPercent * 100f);
-                    string hpText = $"HP: {enemy.Health}/{enemy.MaxHealth} ({percentInt}%)";
+                    // int hpInt = (int)MathF.Ceiling(enemy.Health);
+                    // string hpText = $"HP: {hpInt}/{(int)enemy.MaxHealth}";
+
+                    string hpText = $"HP: {enemy.Health:0.00}/{enemy.MaxHealth:0.00}";
 
                     spriteBatch.DrawString(
                         hudFont,

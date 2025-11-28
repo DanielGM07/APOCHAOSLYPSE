@@ -19,11 +19,11 @@ namespace POCHAOSLYPSE
         public FlameParticle(Vector2 position, Vector2 velocity,
                              float lifetime, float radius, float dps)
         {
-            Position       = position;
-            Velocity       = velocity;
-            Lifetime       = lifetime;
-            MaxLifetime    = lifetime;
-            Radius         = radius;
+            Position = position;
+            Velocity = velocity;
+            Lifetime = lifetime;
+            MaxLifetime = lifetime;
+            Radius = radius;
             DamagePerSecond = dps;
         }
 
@@ -67,8 +67,8 @@ namespace POCHAOSLYPSE
 
             // Color transición: amarillo -> naranja -> rojo
             Color start = Color.Yellow;
-            Color mid   = Color.Orange;
-            Color end   = Color.DarkRed;
+            Color mid = Color.Orange;
+            Color end = Color.DarkRed;
 
             Color c;
             if (t < 0.5f)
@@ -102,7 +102,7 @@ namespace POCHAOSLYPSE
 
                 if (hitbox.Intersects(e.destinationRectangle))
                 {
-                    e.Health -= (int)(DamagePerSecond * dt);
+                    e.Health -= DamagePerSecond * dt;
                 }
             }
         }

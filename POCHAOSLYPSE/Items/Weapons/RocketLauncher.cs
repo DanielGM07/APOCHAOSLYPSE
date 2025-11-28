@@ -6,9 +6,9 @@ namespace POCHAOSLYPSE
 {
     public class RocketLauncher : FireWeapon
     {
-        private const float RocketSpeed    = 350f;
+        private const float RocketSpeed = 350f;
         private const float RocketLifetime = 2.5f;
-        private const float RocketDamage   = 50f;
+        private const float RocketDamage = 50f;
 
         public float ExplosionRadius = 80f;
 
@@ -16,7 +16,7 @@ namespace POCHAOSLYPSE
             : base(texture, srcRec, destRect, fireRate: 0.5f, knockback: 2000f, color)
         {
             ShakeMagnitude = 25f;
-            ShakeDuration  = 0.22f;
+            ShakeDuration = 0.22f;
         }
 
         public override void Fire(Vector2 muzzle, Vector2 dir,
@@ -32,10 +32,10 @@ namespace POCHAOSLYPSE
             var rocket = new Projectile(
                 position: muzzle,
                 velocity: rocketDir * RocketSpeed,
-                damage:   RocketDamage,
+                damage: RocketDamage,
                 lifetime: RocketLifetime,
-                color:    Color.LightGreen,
-                radius:   5f,
+                color: Color.LightGreen,
+                radius: 5f,
                 isExplosive: true,
                 explosionRadius: ExplosionRadius   // 80f en tu clase
             );
